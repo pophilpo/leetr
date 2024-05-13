@@ -1,3 +1,14 @@
+use crate::html;
+use crate::client;
+use crate::config::Config;
+use crate::response_types::ContentResponse;
+use std::error;
+use std::fs;
+use std::process::Command;
+
+use crate::project_templates;
+use crate::queries;
+
 #[derive(Debug)]
 pub enum ProjectType {
     Rust,
@@ -12,4 +23,48 @@ impl From<String> for ProjectType {
     }
 }
 
-pub struct Generator {}
+pub struct Generator {
+    config: Config,
+    project_title: String,
+}
+
+impl Generator {
+    pub fn new(config: Config, project_title: String) -> Self {
+        Self {
+            config,
+            project_title,
+        }
+    }
+
+     pub async fn generate_project(&self) -> Result<(), Box<dyn error::Error>> {
+        self.init()?;
+        let content = self.get_problem_content().await?;
+        html::generate_markdown(self.project_title.clone(), content)?;
+        Ok(())
+    }
+
+    async fn get_problem_content(&self) -> Result<ContentResponse, Box<dyn error::Error>> {
+
+        let client = client::generate_client()?;
+        let query = queries::GraphQLPayload::content_query(self.project_title.clone());
+        println!("{:?}", query);
+        Ok(query.get_response(&client).await?)
+
+    }
+
+    fn init(&self) -> Result<(), Box<dyn error::Error>> {
+
+        match &self.config.default_lang {
+            ProjectType::Rust => {
+
+                Command::new("cargo").arg("new").arg(&self.project_title).status()?;
+
+            }
+
+            _ => unreachable!()
+
+        }
+        Ok(())
+
+    }
+}

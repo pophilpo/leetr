@@ -22,7 +22,7 @@ impl ConfigFile {
 
 #[derive(Debug)]
 pub struct Config {
-    default_lang: ProjectType,
+    pub default_lang: ProjectType,
 }
 
 impl From<ConfigFile> for Config {

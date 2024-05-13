@@ -45,7 +45,7 @@ const CONSOLE_PANEL_CONFIG_QUERY: &str = r#"
     }
     "#;
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct GraphQLPayload {
     query: String,
     variables: serde_json::Value,
@@ -92,6 +92,7 @@ impl GraphQLPayload {
     pub async fn get_response(&self, client: &reqwest::Client) -> Result<ContentResponse, Box<dyn std::error::Error>> {
 
         let response = client.post(&self.endponit).json(&self.query).send().await?;
+
 
         Ok(response.json::<ContentResponse>().await?)
 

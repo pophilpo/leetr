@@ -13,7 +13,12 @@ pub fn generate_markdown(
 
     // TODO: Add save path as var
 
-    Ok(fs::write("README.md", full_markdown)?)
+    let filename = format!(
+        "{}/{}",
+        question_title.to_lowercase(),
+        String::from("README.md"),
+    );
+    Ok(fs::write(filename, full_markdown)?)
 }
 
 fn capitalize_word(word: &str) -> String {

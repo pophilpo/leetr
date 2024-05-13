@@ -73,7 +73,7 @@ impl GraphQLPayload {
         GraphQLPayload {
             query: QUESTION_CONTENT_QUERY.to_string(),
             variables,
-            endponit: String::From("https://leetcode.com/graphql"),
+            endponit: String::from("https://leetcode.com/graphql"),
         }
     }
 

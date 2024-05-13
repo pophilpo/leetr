@@ -3,6 +3,7 @@ mod queries;
 mod response_types;
 mod html;
 mod argument_parser;
+mod project_generator;
 
 use clap::Parser;
 

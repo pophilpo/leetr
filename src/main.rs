@@ -1,4 +1,3 @@
-mod client;
 mod queries;
 mod response_types;
 mod html;

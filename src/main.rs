@@ -8,11 +8,11 @@ mod project_templates;
 mod errors;
 
 use clap::Parser;
-use errors::GetResponse;
+use errors::ProjectGeneratorError;
 
 
 #[tokio::main]
-async fn main() -> Result<(), GetResponse> {
+async fn main() -> Result<(), ProjectGeneratorError> {
 
     let config = config::Config::new().unwrap();
     let cli = argument_parser::Cli::parse();

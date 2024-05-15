@@ -3,7 +3,7 @@ use reqwest::Client;
 use serde::Serialize;
 
 use crate::response_types::ContentResponse;
-use crate::errors::GetResponse;
+use crate::errors::GetResponseError;
 
 const QUESTION_TITLE_QUERY: &str = r#"
     query consolePanelConfig($titleSlug: String!) {
@@ -87,7 +87,7 @@ impl GraphQLPayload {
         }
     }
 
-    pub async fn get_response(&self) -> Result<ContentResponse, GetResponse> {
+    pub async fn get_response(&self) -> Result<ContentResponse, GetResponseError> {
 
         let client = Client::new();
         let response = client.post("https://leetcode.cfffffom/graphql").header("Content-Type", "application/json").json(&self).send().await?;

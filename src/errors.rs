@@ -10,10 +10,22 @@ pub enum GenerateMarkdownError {
 }
 
 #[derive(Error, Debug)]
-pub enum GetResponse {
-    #[error("GetResponse Error [Request]: {0}")]
+pub enum GetResponseError {
+    #[error("GetResponseError [Request]: {0}")]
     RequestError(#[from] ReqwestError),
 
     #[error("GetResponse Error [Parse]: {0}")]
     ParseError(#[from] SerdeError),
+}
+
+#[derive(Error, Debug)]
+pub enum ProjectGeneratorError {
+    #[error(transparent)]
+    GenerateMarkdown(#[from] GenerateMarkdownError),
+
+    #[error(transparent)]
+    GetResponse(#[from] GetResponseError),
+
+    #[error("ProjectGeneratorError [Command]: {0}")]
+    Command(#[from] io::Error),
 }

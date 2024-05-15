@@ -1,12 +1,10 @@
 use crate::html;
 use crate::config::Config;
 use crate::response_types::ContentResponse;
-use std::error;
-use std::fs;
 use std::process::Command;
 
-use crate::project_templates;
 use crate::queries;
+use crate::errors::ProjectGeneratorError;
 
 #[derive(Debug)]
 pub enum ProjectType {
@@ -35,21 +33,21 @@ impl Generator {
         }
     }
 
-     pub async fn generate_project(&self) -> Result<(), Box<dyn error::Error>> {
+     pub async fn generate_project(&self) -> Result<(), ProjectGeneratorError> {
         self.init()?;
         let content = self.get_problem_content().await?;
         html::generate_markdown(self.project_title.clone(), content)?;
         Ok(())
     }
 
-    async fn get_problem_content(&self) -> Result<ContentResponse, Box<dyn error::Error>> {
+    async fn get_problem_content(&self) -> Result<ContentResponse, ProjectGeneratorError> {
 
         let query = queries::GraphQLPayload::content_query(self.project_title.clone());
         Ok(query.get_response().await?)
 
     }
 
-    fn init(&self) -> Result<(), Box<dyn error::Error>> {
+    fn init(&self) -> Result<(), ProjectGeneratorError> {
 
         match &self.config.default_lang {
             ProjectType::Rust => {

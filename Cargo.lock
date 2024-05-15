@@ -3,6 +3,10 @@
 version = 3
 
 [[package]]
+name = "add-two-numbers"
+version = "0.1.0"
+
+[[package]]
 name = "addr2line"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -609,6 +613,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "thiserror",
  "tl",
  "tokio",
  "toml",
@@ -1223,6 +1228,10 @@ dependencies = [
  "libc",
  "windows-sys 0.52.0",
 ]
+
+[[package]]
+name = "string-to-integer-atoi"
+version = "0.1.0"
 
 [[package]]
 name = "string_cache"

@@ -45,7 +45,6 @@ impl Generator {
     async fn get_problem_content(&self) -> Result<ContentResponse, Box<dyn error::Error>> {
 
         let query = queries::GraphQLPayload::content_query(self.project_title.clone());
-        println!("{:?}", query);
         Ok(query.get_response().await?)
 
     }

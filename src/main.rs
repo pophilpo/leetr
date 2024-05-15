@@ -5,12 +5,14 @@ mod argument_parser;
 mod project_generator;
 mod config;
 mod project_templates;
+mod errors;
 
 use clap::Parser;
+use errors::GetResponse;
 
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), GetResponse> {
 
     let config = config::Config::new().unwrap();
     let cli = argument_parser::Cli::parse();
@@ -18,6 +20,7 @@ async fn main() {
 
     let generator = project_generator::Generator::new(config, title);
 
-    generator.generate_project().await.unwrap();
+    generator.generate_project().await?;
+    Ok(())
 
 }

@@ -8,13 +8,12 @@ mod project_templates;
 mod errors;
 
 use clap::Parser;
-use errors::ProjectGeneratorError;
 
 
 #[tokio::main]
-async fn main() -> Result<(), ProjectGeneratorError> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let config = config::Config::new().unwrap();
+    let config = config::Config::new()?;
     let cli = argument_parser::Cli::parse();
     let title = cli.url.trim_end_matches('/').rsplit('/').nth(1).unwrap().to_string();
 

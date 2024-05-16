@@ -14,3 +14,5 @@ html2md = "0.2.14"
 clap = { version = "4.5.4", features = ["derive"] }
 toml = "0.8.12"
 thiserror = "1.0.60"
+log = "0.4.21"
+colored = "2.1.0"

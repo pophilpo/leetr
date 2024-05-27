@@ -39,17 +39,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap()
         .to_string();
 
-    let generator = project_generator::Generator::new(config, title);
+    let query = queries::GraphQLPayload::editor_data_query(title);
 
-    match generator.generate_project().await {
-        Ok(_) => {
-            info!("Successfully generated project");
-            Ok(())
-        }
+    let response = query.get_response();
 
-        Err(e) => {
-            error!("{}", e);
-            process::exit(1);
-        }
-    }
+    Ok(())
 }

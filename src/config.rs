@@ -3,8 +3,6 @@ use crate::project_generator::ProjectType;
 use serde::Deserialize;
 use toml;
 
-use std::error;
-
 use std::fs;
 
 #[derive(Deserialize)]

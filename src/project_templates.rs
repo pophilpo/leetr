@@ -16,7 +16,7 @@ mod tests {
 pub const PYTHON_TEMPLATE: &str = r#"from typing import *
 
 
-{solution code}pass
+{solution code}raise NotImplementedError("Implement Solution")
 
 
 def main():

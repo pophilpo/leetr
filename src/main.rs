@@ -39,11 +39,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap()
         .to_string();
 
-    let query = queries::GraphQLPayload::editor_data_query(title);
+    let project_generator = project_generator::Generator::new(config, title);
+    project_generator.generate_project().await?;
 
-    let response = query.get_response().await?;
-
-    let code = response.get_content(String::from("Rust"));
-    println!("{}", code.unwrap());
     Ok(())
 }

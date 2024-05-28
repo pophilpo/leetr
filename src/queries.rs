@@ -3,7 +3,6 @@ use serde::Serialize;
 use serde_json;
 
 use crate::errors::GetResponseError;
-use crate::response_types::ContentResponse;
 use crate::response_types::Response;
 
 const QUESTION_CONTENT_QUERY: &str = r#"

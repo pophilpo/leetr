@@ -34,7 +34,7 @@ This command generates a Rust project with the following structure:
 - A `README.md` file describing the problem.
 - A `main.rs` file containing the initial problem code
 ```sh
-leetr https://leetcode.com/problems/two-sum/description python
+leetr https://leetcode.com/problems/two-sum/description rust
 ```
 
 Using `leetr` without the language argument will generate a rust project by default

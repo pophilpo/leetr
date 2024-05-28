@@ -1,4 +1,29 @@
-use serde::Deserialize;
+use serde::{de::Error, Deserialize};
+
+use crate::errors::GetResponseError;
+
+pub enum Response {
+    ContentResponse(ContentResponse),
+    EditorResponse(EditorResponse),
+}
+
+impl Response {
+    pub async fn from_response(response: reqwest::Response) -> Result<Self, GetResponseError> {
+        let body = response.text().await?;
+
+        if let Ok(content_response) = serde_json::from_str::<ContentResponse>(&body) {
+            return Ok(Response::ContentResponse(content_response));
+        }
+
+        if let Ok(editor_response) = serde_json::from_str::<EditorResponse>(&body) {
+            return Ok(Response::EditorResponse(editor_response));
+        }
+
+        Err(GetResponseError::ParseError(serde_json::Error::custom(
+            "Failed to deserialize response",
+        )))
+    }
+}
 
 #[derive(Deserialize, Debug)]
 pub struct ContentResponse {
@@ -21,7 +46,7 @@ pub struct Question {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct EditorResponnse {
+pub struct EditorResponse {
     pub data: EditorData,
 }
 

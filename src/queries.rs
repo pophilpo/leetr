@@ -4,6 +4,7 @@ use serde_json;
 
 use crate::errors::GetResponseError;
 use crate::response_types::ContentResponse;
+use crate::response_types::Response;
 
 const QUESTION_CONTENT_QUERY: &str = r#"
     query questionContent($titleSlug: String!) {
@@ -62,7 +63,7 @@ impl GraphQLPayload {
         }
     }
 
-    pub async fn get_response(&self) -> Result<ContentResponse, GetResponseError> {
+    pub async fn get_response(&self) -> Result<Response, GetResponseError> {
         let client = Client::new();
         let response = client
             .post("https://leetcode.com/graphql")
@@ -70,6 +71,7 @@ impl GraphQLPayload {
             .json(&self)
             .send()
             .await?;
-        Ok(response.json::<ContentResponse>().await?)
+
+        Response::from_response(response).await
     }
 }

@@ -1,26 +1,12 @@
+use crate::errors::ConfigError;
 use crate::project_generator::ProjectType;
 use serde::Deserialize;
-use toml;
-
-use std::error;
-
-use std::fs;
 
 #[derive(Deserialize)]
 pub struct ConfigFile {
     default_lang: String,
 }
 
-impl ConfigFile {
-    pub fn new() -> Result<Self, Box<dyn error::Error>> {
-        // TODO: Generic path
-        let file_content = fs::read_to_string("/home/philipp/.config/leetr/leetr.toml")?;
-
-        Ok(toml::from_str(&file_content)?)
-    }
-}
-
-#[derive(Debug)]
 pub struct Config {
     pub default_lang: ProjectType,
 }
@@ -34,8 +20,14 @@ impl From<ConfigFile> for Config {
 }
 
 impl Config {
-    pub fn new() -> Result<Self, Box<dyn error::Error>> {
-        let config_file = ConfigFile::new()?;
-        Ok(Config::from(config_file))
+    pub fn new(lang: String) -> Result<Self, ConfigError> {
+        //let config_file = ConfigFile::new()?;
+        //Ok(Config::from(config_file))
+
+        let project_type = ProjectType::from(lang);
+
+        Ok(Self {
+            default_lang: project_type,
+        })
     }
 }

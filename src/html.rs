@@ -1,13 +1,12 @@
-use crate::response_types::ContentResponse;
-use html2md;
+use crate::errors::GenerateMarkdownError;
+use std::fs;
 
-use std::{error, fs};
 pub fn generate_markdown(
     question_title: String,
-    content: ContentResponse,
-) -> Result<(), Box<dyn error::Error>> {
+    content: &str,
+) -> Result<(), GenerateMarkdownError> {
     let title = format_title(&question_title);
-    let markdown_content = html2md::parse_html(&content.data.question.content);
+    let markdown_content = html2md::parse_html(content);
 
     let full_markdown = format!("# {}\n\n{}", title, markdown_content);
 

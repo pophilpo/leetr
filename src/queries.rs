@@ -1,23 +1,8 @@
-use serde_json;
 use reqwest::Client;
+use serde::Serialize;
 
-use crate::response_types::ContentResponse;
-
-const QUESTION_TITLE_QUERY: &str = r#"
-    query consolePanelConfig($titleSlug: String!) {
-        question(titleSlug: $titleSlug) {
-            questionId
-            questionFrontendId
-            questionTitle
-            enableDebugger
-            enableRunCode
-            enableSubmit
-            enableTestMode
-            exampleTestcaseList
-            metaData
-        }
-    }
-    "#;
+use crate::errors::GetResponseError;
+use crate::response_types::Response;
 
 const QUESTION_CONTENT_QUERY: &str = r#"
     query questionContent($titleSlug: String!) {
@@ -29,20 +14,22 @@ const QUESTION_CONTENT_QUERY: &str = r#"
     }
     "#;
 
-const CONSOLE_PANEL_CONFIG_QUERY: &str = r#"
-    query consolePanelConfig($titleSlug: String!) {
+const QUESTION_EDITOR_DATA_QUERY: &str = r#"
+    query questionEditorData($titleSlug: String!) {
         question(titleSlug: $titleSlug) {
             questionId
             questionFrontendId
-            questionTitle
-            enableDebugger
-            enableRunCode
-            enableSubmit
-            enableTestMode
-            exampleTestcaseList
-            metaData
-        }
-    }
+            codeSnippets {
+                lang
+                langSlug
+                code
+            }
+        envInfo
+        enableRunCode
+        hasFrontendPreview
+        frontendPreviews
+  }
+}
     "#;
 
 #[derive(Serialize, Debug)]
@@ -52,17 +39,6 @@ pub struct GraphQLPayload {
 }
 
 impl GraphQLPayload {
-    pub fn config_query(title: String) -> Self {
-        let variables = serde_json::json!({
-            "titleSlug": title
-        });
-
-        GraphQLPayload {
-            query: CONSOLE_PANEL_CONFIG_QUERY.to_string(),
-            variables,
-        }
-    }
-
     pub fn content_query(title: String) -> Self {
         let variables = serde_json::json!({
             "titleSlug": title
@@ -74,22 +50,26 @@ impl GraphQLPayload {
         }
     }
 
-    pub fn title_query(title: String) -> Self {
+    pub fn editor_data_query(title: String) -> Self {
         let variables = serde_json::json!({
             "titleSlug": title
         });
 
         GraphQLPayload {
-            query: QUESTION_TITLE_QUERY.to_string(),
+            query: QUESTION_EDITOR_DATA_QUERY.to_string(),
             variables,
         }
     }
 
-    pub async fn get_response(&self) -> Result<ContentResponse, Box<dyn std::error::Error>> {
-
+    pub async fn get_response(&self) -> Result<Response, GetResponseError> {
         let client = Client::new();
-        let response = client.post("https://leetcode.com/graphql").header("Content-Type", "application/json").json(&self).send().await?;
-        Ok(response.json::<ContentResponse>().await?)
+        let response = client
+            .post("https://leetcode.com/graphql")
+            .header("Content-Type", "application/json")
+            .json(&self)
+            .send()
+            .await?;
 
+        Response::from_response(response).await
     }
 }

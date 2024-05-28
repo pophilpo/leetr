@@ -2,6 +2,10 @@
 name = "leetr"
 version = "0.1.0"
 edition = "2021"
+authors = ["Popov Philipp <philolippo@gmail.com>"]
+description = "A CLI tool for setting up local LeetCode projects"
+repository = "https://github.com/pophilpo/leetr"
+license = "GPL-3.0"
 
 [dependencies]
 env_logger = "0.11.3"
@@ -13,3 +17,6 @@ serde_json = "1.0"
 html2md = "0.2.14"
 clap = { version = "4.5.4", features = ["derive"] }
 toml = "0.8.12"
+thiserror = "1.0.60"
+log = "0.4.21"
+colored = "2.1.0"

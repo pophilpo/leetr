@@ -1,23 +1,38 @@
+mod argument_parser;
+mod config;
+mod errors;
+mod html;
+mod logger;
+mod project_generator;
+mod project_templates;
 mod queries;
 mod response_types;
-mod html;
-mod argument_parser;
-mod project_generator;
-mod config;
-mod project_templates;
 
 use clap::Parser;
-
+use config::Config;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    logger::init();
 
-    let config = config::Config::new().unwrap();
     let cli = argument_parser::Cli::parse();
-    let title = cli.url.trim_end_matches('/').rsplit('/').nth(1).unwrap().to_string();
+    let title = cli
+        .url
+        .trim_end_matches('/')
+        .rsplit('/')
+        .nth(1)
+        .unwrap()
+        .to_string();
 
-    let generator = project_generator::Generator::new(config, title);
+    let lang = match cli.lang {
+        Some(lang) => lang,
+        None => String::from("rust"),
+    };
 
-    generator.generate_project().await.unwrap();
+    let config = Config::new(lang)?;
 
+    let project_generator = project_generator::Generator::new(config, title);
+    project_generator.generate_project().await?;
+
+    Ok(())
 }

@@ -1,6 +1,8 @@
 use crate::config::Config;
 use crate::html;
-use crate::response_types::{ContentResponse, Response};
+use std::fs::File;
+use std::io::Write;
+use std::path::PathBuf;
 use std::process::Command;
 
 use crate::errors::ProjectGeneratorError;
@@ -14,8 +16,8 @@ pub enum ProjectType {
 impl From<String> for ProjectType {
     fn from(s: String) -> Self {
         match s.to_ascii_lowercase().as_str() {
-            "rust" => Self::Rust("rust".to_string()),
-            _ => Self::Rust("rust".to_string()),
+            "rust" => Self::Rust("Rust".to_string()),
+            _ => Self::Rust("Rust".to_string()),
         }
     }
 }
@@ -34,7 +36,7 @@ impl Generator {
     }
 
     pub async fn generate_project(&self) -> Result<(), ProjectGeneratorError> {
-        self.init()?;
+        self.init().await?;
         let content = self.get_problem_content().await?;
         html::generate_markdown(self.project_title.clone(), &content)?;
         Ok(())
@@ -45,18 +47,37 @@ impl Generator {
         let response = query.get_response().await?;
 
         // FIXME: pass lang heere
-        //
         let content = response.get_content(String::from("rust"));
         Ok(content.unwrap())
     }
 
-    fn init(&self) -> Result<(), ProjectGeneratorError> {
+    async fn get_editor_code(&self, project_lang: String) -> Result<String, ProjectGeneratorError> {
+        let query = queries::GraphQLPayload::editor_data_query(self.project_title.clone());
+        let response = query.get_response().await?;
+        let content = response.get_content(project_lang);
+
+        Ok(content.unwrap())
+    }
+
+    async fn init(&self) -> Result<(), ProjectGeneratorError> {
         match &self.config.default_lang {
-            ProjectType::Rust(_) => {
+            ProjectType::Rust(lang) => {
+                let code = self.get_editor_code(lang.to_string()).await?;
+
                 Command::new("cargo")
                     .arg("new")
                     .arg(&self.project_title)
                     .status()?;
+
+                let path: PathBuf = [&self.project_title.clone(), "src", "main.rs"]
+                    .iter()
+                    .collect();
+
+                let mut file = File::create(path)?;
+
+                // TODO: Generate valid code, stripping the "Solution" struct
+                // Generate todo!("something") as well
+                file.write_all(code.as_bytes())?;
             }
 
             _ => unreachable!(),

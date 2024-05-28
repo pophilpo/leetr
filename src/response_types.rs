@@ -1,7 +1,6 @@
 use serde::{de::Error, Deserialize};
 
 use crate::errors::GetResponseError;
-use crate::project_generator::ProjectType;
 
 #[derive(Debug)]
 pub enum Response {
@@ -11,7 +10,6 @@ pub enum Response {
 impl Response {
     pub async fn from_response(response: reqwest::Response) -> Result<Self, GetResponseError> {
         let body = response.text().await?;
-        println!("{}", body);
 
         if let Ok(content_response) = serde_json::from_str::<ContentResponse>(&body) {
             return Ok(Response::ContentResponse(content_response));

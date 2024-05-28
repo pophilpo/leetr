@@ -41,7 +41,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let query = queries::GraphQLPayload::editor_data_query(title);
 
-    let response = query.get_response();
+    let response = query.get_response().await?;
 
+    let code = response.get_content(String::from("Rust"));
+    println!("{}", code.unwrap());
     Ok(())
 }

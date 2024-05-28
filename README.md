@@ -29,3 +29,24 @@ This command generates a Rust project with the following structure:
 - A `README.md` file describing the problem.
 - A `main.rs` file containing the initial problem code.
 
+# Supported languages
+
+- [x] Rust
+- [ ] Python
+- [ ] Python 3
+- [ ] C++
+- [ ] Java
+- [ ] C
+- [ ] C#
+- [ ] JavaScript
+- [ ] TypeScript
+- [ ] PHP
+- [ ] Swift
+- [ ] Kotlin
+- [ ] Dart
+- [ ] Go
+- [ ] Ruby
+- [ ] Scala
+- [ ] Racket
+- [ ] Erlang
+- [ ] Elixir

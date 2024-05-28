@@ -1,6 +1,5 @@
 use reqwest::Client;
 use serde::Serialize;
-use serde_json;
 
 use crate::errors::GetResponseError;
 use crate::response_types::Response;

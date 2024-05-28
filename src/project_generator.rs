@@ -9,15 +9,16 @@ use crate::errors::ProjectGeneratorError;
 use crate::project_templates::RUST_TEMPLATE;
 use crate::queries;
 
-#[derive(Debug)]
 pub enum ProjectType {
     Rust(String),
+    Python3(String),
 }
 
 impl From<String> for ProjectType {
     fn from(s: String) -> Self {
         match s.to_ascii_lowercase().as_str() {
             "rust" => Self::Rust("Rust".to_string()),
+            "python3" => Self::Python3("Python3".to_string()),
             _ => Self::Rust("Rust".to_string()),
         }
     }
@@ -99,11 +100,10 @@ impl Generator {
 
                 // TODO: Generate valid code, stripping the "Solution" struct
                 // Generate todo!("something") as well
-                file.write_all(new_code.as_bytes())?;
+                Ok(file.write_all(new_code.as_bytes())?)
             }
 
-            _ => unreachable!(),
+            _ => Ok(()),
         }
-        Ok(())
     }
 }

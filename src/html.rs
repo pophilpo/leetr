@@ -1,5 +1,4 @@
 use crate::errors::GenerateMarkdownError;
-use html2md;
 use std::fs;
 
 pub fn generate_markdown(

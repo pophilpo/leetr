@@ -1,9 +1,6 @@
 use crate::errors::ConfigError;
 use crate::project_generator::ProjectType;
 use serde::Deserialize;
-use toml;
-
-use std::fs;
 
 #[derive(Deserialize)]
 pub struct ConfigFile {
@@ -13,13 +10,13 @@ pub struct ConfigFile {
 impl ConfigFile {
     pub fn new() -> Result<Self, ConfigError> {
         // TODO: Generic path
-        let file_content = fs::read_to_string("/home/philipp/.config/leetr/leetr.toml")?;
+        //let file_content = fs::read_to_string("/home/philipp/.config/leetr/leetr.toml")?;
+        let file_content = String::from("default_lang = 'rust'");
 
         Ok(toml::from_str(&file_content)?)
     }
 }
 
-#[derive(Debug)]
 pub struct Config {
     pub default_lang: ProjectType,
 }

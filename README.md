@@ -3,8 +3,12 @@
 A CLI tool for setting up local LeetCode projects.
 
 # Installation
-Currently, there is no convenient way to install this tool via package managers. You need to build it from the source and copy the binary to your `bin` directory.
+Using cargo
+```sh
+cargo install leetr
+```
 
+From source
 ```sh
 # Clone the repository
 git clone https://github.com/pophilpo/leetr

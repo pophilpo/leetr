@@ -6,6 +6,7 @@ use std::path::PathBuf;
 use std::process::Command;
 
 use crate::errors::ProjectGeneratorError;
+use crate::project_templates::RUST_TEMPLATE;
 use crate::queries;
 
 #[derive(Debug)]
@@ -64,6 +65,27 @@ impl Generator {
             ProjectType::Rust(lang) => {
                 let code = self.get_editor_code(lang.to_string()).await?;
 
+                // Insert todo inside the code;
+                let insert_str = r#"todo!("Implement a solution");"#;
+
+                let new_code = if let Some(fn_pos) = code.find("fn ") {
+                    if let Some(brace_pos) = code[fn_pos..].find('{') {
+                        let insert_pos = fn_pos + brace_pos + 2; // +1 to insert right after '{'
+                        format!(
+                            "{}        {}\n{}",
+                            &code[..insert_pos],
+                            insert_str,
+                            &code[insert_pos..]
+                        )
+                    } else {
+                        code
+                    }
+                } else {
+                    code
+                };
+
+                let new_code = RUST_TEMPLATE.replace("{solution code}", &new_code);
+
                 Command::new("cargo")
                     .arg("new")
                     .arg(&self.project_title)
@@ -77,7 +99,7 @@ impl Generator {
 
                 // TODO: Generate valid code, stripping the "Solution" struct
                 // Generate todo!("something") as well
-                file.write_all(code.as_bytes())?;
+                file.write_all(new_code.as_bytes())?;
             }
 
             _ => unreachable!(),

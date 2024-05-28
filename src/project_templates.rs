@@ -1,9 +1,13 @@
-const RUST_TEMPLATE: &str = r#"
-fn main() {
-  {solution_function_title}();
-}
+pub const RUST_TEMPLATE: &str = r#"
 
-{leetcode_fn}
+// This is a dummy struct, so that we can build the project
+struct Solution {}
+
+{solution code}
+
+fn main() {
+    let solution = Solution {};
+}
 
 mod tests {
 }

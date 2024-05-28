@@ -32,8 +32,8 @@ This command generates a Rust project with the following structure:
 # Supported languages
 
 - [x] Rust
+- [x] Python 3
 - [ ] Python
-- [ ] Python 3
 - [ ] C++
 - [ ] Java
 - [ ] C

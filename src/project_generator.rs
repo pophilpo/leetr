@@ -1,12 +1,12 @@
 use crate::config::Config;
 use crate::html;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
 
 use crate::errors::ProjectGeneratorError;
-use crate::project_templates::RUST_TEMPLATE;
+use crate::project_templates::{PYTHON_TEMPLATE, RUST_TEMPLATE};
 use crate::queries;
 
 pub enum ProjectType {
@@ -18,7 +18,7 @@ impl From<String> for ProjectType {
     fn from(s: String) -> Self {
         match s.to_ascii_lowercase().as_str() {
             "rust" => Self::Rust("Rust".to_string()),
-            "python3" => Self::Python3("Python3".to_string()),
+            "python" => Self::Python3("Python3".to_string()),
             _ => Self::Rust("Rust".to_string()),
         }
     }
@@ -103,7 +103,18 @@ impl Generator {
                 Ok(file.write_all(new_code.as_bytes())?)
             }
 
-            _ => Ok(()),
+            ProjectType::Python3(lang) => {
+                let code = self.get_editor_code(lang.to_string()).await?;
+                let new_code = PYTHON_TEMPLATE.replace("{solution code}", &code);
+
+                fs::create_dir(&self.project_title)?;
+
+                let path: PathBuf = [&self.project_title, "main.py"].iter().collect();
+
+                let mut file = File::create(path)?;
+
+                Ok(file.write_all(new_code.as_bytes())?)
+            }
         }
     }
 }

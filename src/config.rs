@@ -7,16 +7,6 @@ pub struct ConfigFile {
     default_lang: String,
 }
 
-impl ConfigFile {
-    pub fn new() -> Result<Self, ConfigError> {
-        // TODO: Generic path
-        //let file_content = fs::read_to_string("/home/philipp/.config/leetr/leetr.toml")?;
-        let file_content = String::from("default_lang = 'rust'");
-
-        Ok(toml::from_str(&file_content)?)
-    }
-}
-
 pub struct Config {
     pub default_lang: ProjectType,
 }
@@ -30,8 +20,14 @@ impl From<ConfigFile> for Config {
 }
 
 impl Config {
-    pub fn new() -> Result<Self, ConfigError> {
-        let config_file = ConfigFile::new()?;
-        Ok(Config::from(config_file))
+    pub fn new(lang: String) -> Result<Self, ConfigError> {
+        //let config_file = ConfigFile::new()?;
+        //Ok(Config::from(config_file))
+
+        let project_type = ProjectType::from(lang);
+
+        Ok(Self {
+            default_lang: project_type,
+        })
     }
 }

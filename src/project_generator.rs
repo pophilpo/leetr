@@ -69,7 +69,8 @@ impl Generator {
                 // Insert todo inside the code;
                 let insert_str = r#"todo!("Implement a solution");"#;
 
-                let new_code = if let Some(fn_pos) = code.find("fn ") {
+                let string_to_find = format!("fn {}", &self.project_title.replace("-", "_"));
+                let new_code = if let Some(fn_pos) = code.find(&string_to_find) {
                     if let Some(brace_pos) = code[fn_pos..].find('{') {
                         let insert_pos = fn_pos + brace_pos + 2; // +1 to insert right after '{'
                         format!(
@@ -98,8 +99,6 @@ impl Generator {
 
                 let mut file = File::create(path)?;
 
-                // TODO: Generate valid code, stripping the "Solution" struct
-                // Generate todo!("something") as well
                 Ok(file.write_all(new_code.as_bytes())?)
             }
 

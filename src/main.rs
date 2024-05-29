@@ -8,30 +8,35 @@ mod project_templates;
 mod queries;
 mod response_types;
 
-use clap::Parser;
 use config::Config;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     logger::init();
 
-    let cli = argument_parser::Cli::parse();
-    let title = cli
-        .url
+    let arguments = argument_parser::parse_args();
+
+    let problem_url = arguments
+        .get_one::<String>("problem_url")
+        .expect("Is required");
+
+    let title = problem_url
         .trim_end_matches('/')
         .rsplit('/')
         .nth(1)
         .unwrap()
         .to_string();
 
-    let lang = match cli.lang {
-        Some(lang) => lang,
-        None => String::from("rust"),
-    };
+    let dir = arguments.get_one::<String>("directory").cloned();
+
+    let lang = arguments
+        .get_one::<String>("language")
+        .expect("Has a default value")
+        .clone();
 
     let config = Config::new(lang)?;
 
-    let project_generator = project_generator::Generator::new(config, title);
+    let project_generator = project_generator::Generator::new(config, title, dir);
     project_generator.generate_project().await?;
 
     Ok(())

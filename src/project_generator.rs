@@ -27,20 +27,28 @@ impl From<String> for ProjectType {
 pub struct Generator {
     config: Config,
     project_title: String,
+    directory: String,
 }
 
 impl Generator {
-    pub fn new(config: Config, project_title: String) -> Self {
+    pub fn new(config: Config, project_title: String, dir: Option<String>) -> Self {
+        let directory = match dir {
+            Some(d) => d,
+            None => project_title.clone(),
+        };
+
         Self {
             config,
             project_title,
+            directory,
         }
     }
 
     pub async fn generate_project(&self) -> Result<(), ProjectGeneratorError> {
         self.init().await?;
         let content = self.get_problem_content().await?;
-        html::generate_markdown(self.project_title.clone(), &content)?;
+
+        html::generate_markdown(self.project_title.clone(), &content, self.directory.clone())?;
         Ok(())
     }
 
@@ -69,7 +77,7 @@ impl Generator {
                 // Insert todo inside the code;
                 let insert_str = r#"todo!("Implement a solution");"#;
 
-                let string_to_find = format!("fn {}", &self.project_title.replace("-", "_"));
+                let string_to_find = format!("fn {}", &self.project_title.replace('-', "_"));
                 let new_code = if let Some(fn_pos) = code.find(&string_to_find) {
                     if let Some(brace_pos) = code[fn_pos..].find('{') {
                         let insert_pos = fn_pos + brace_pos + 2; // +1 to insert right after '{'
@@ -87,15 +95,12 @@ impl Generator {
                 };
 
                 let new_code = RUST_TEMPLATE.replace("{solution code}", &new_code);
-
                 Command::new("cargo")
                     .arg("new")
-                    .arg(&self.project_title)
+                    .arg(&self.directory)
                     .status()?;
 
-                let path: PathBuf = [&self.project_title.clone(), "src", "main.rs"]
-                    .iter()
-                    .collect();
+                let path: PathBuf = [&self.directory, "src", "main.rs"].iter().collect();
 
                 let mut file = File::create(path)?;
 
@@ -106,9 +111,9 @@ impl Generator {
                 let code = self.get_editor_code(lang.to_string()).await?;
                 let new_code = PYTHON_TEMPLATE.replace("{solution code}", &code);
 
-                fs::create_dir(&self.project_title)?;
+                fs::create_dir(&self.directory)?;
 
-                let path: PathBuf = [&self.project_title, "main.py"].iter().collect();
+                let path: PathBuf = [&self.directory, "main.py"].iter().collect();
 
                 let mut file = File::create(path)?;
 

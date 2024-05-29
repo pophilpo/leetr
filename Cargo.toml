@@ -12,14 +12,17 @@ name = "leetr"
 path = "src/main.rs"
 
 [dependencies]
+clap = { version = "4.5.4", features = ["cargo"] }
+colored = "2.1.0"
 env_logger = "0.11.3"
+html2md = "0.2.14"
+log = "0.4.21"
 reqwest = { version = "0.12.3" , features = ["json"]}
-tl = "0.7.8"
-tokio = { version = "1.37.0", features = ["full"] }
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
-html2md = "0.2.14"
-clap = { version = "4.5.4", features = ["cargo"] }
+strum = "0.26"
+strum_macros = "0.26"
 thiserror = "1.0.60"
-log = "0.4.21"
-colored = "2.1.0"
+tl = "0.7.8"
+tokio = { version = "1.37.0", features = ["full"] }
+toml = "0.8.12"

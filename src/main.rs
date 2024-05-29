@@ -8,8 +8,8 @@ mod queries;
 mod response_types;
 
 use log::error;
-
 use std::env;
+use std::process;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -37,16 +37,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
     };
 
-    match title {
-        Ok(title) => {
-            let project_generator = project_generator::Generator::new(lang, title, dir);
-            project_generator.generate_project().await?;
+    let title = match title {
+        Ok(t) => t,
+        Err(e) => {
+            error!("{}", e);
+            return Ok(());
+        }
+    };
 
+    let generator = project_generator::Generator::new(lang, title, dir);
+
+    match generator {
+        Ok(generator) => {
+            generator.generate_project().await?;
             Ok(())
         }
         Err(e) => {
             error!("{}", e);
-            Ok(())
+            process::exit(1);
         }
     }
 }

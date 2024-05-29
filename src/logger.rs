@@ -1,4 +1,5 @@
 use colored::*;
+use log::LevelFilter;
 
 pub fn init() {
     env_logger::Builder::new()
@@ -13,12 +14,18 @@ pub fn init() {
                 log::Level::Trace => "purple",
             };
 
-            writeln!(
-                buf,
-                "{}: {}",
-                level.to_string().color(level_color),
-                record.args()
-            )
+            // Info level is for user messages, so don't print level there
+            if level == log::Level::Info {
+                writeln!(buf, "{}", record.args())
+            } else {
+                writeln!(
+                    buf,
+                    "{}: {}",
+                    level.to_string().color(level_color),
+                    record.args()
+                )
+            }
         })
+        .filter(None, LevelFilter::Info)
         .init()
 }

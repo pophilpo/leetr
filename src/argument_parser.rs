@@ -3,8 +3,6 @@ use clap::{command, Arg, ArgMatches};
 pub fn parse_args() -> ArgMatches {
     let problem_url_arg = Arg::new("problem_url")
         .required(true)
-        .short('u')
-        .long("url")
         .help("Leetcode problem url");
 
     let directory_arg = Arg::new("directory")

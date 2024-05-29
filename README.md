@@ -25,27 +25,26 @@ sudo cp target/release/leetr /usr/local/bin
 
 # Usage
 
-To use leetr, pass the URL of the LeetCode problem and the language of your choice (python/rust) to the tool. Note that the "description" part of the URL is mandatory as it is always present when opening the problem. 
+To use leetr, pass the URL of the LeetCode problem and the language of your choice (python/rust) to the tool. Note that the "description" part of the URL is mandatory as it is always present when opening the problem.
+
+## Arguments
+  - d, --dir <directory>  Create a directory with custom name for the problem, otherwise uses problem name
+  - l, --lang <language>  Programming language used to setup the project [default: rust]
+  - h, --help             Print help
 
 This command generates a Python 3 project with the following structure:
-- A `README.md` file describing the problem.
-- A `main.py` file containing the initial problem code
+- A `two_sum/README.md` file describing the problem.
+- A `two_sum/main.py` file containing the initial problem code
 ```sh
-leetr https://leetcode.com/problems/two-sum/description python
+leetr https://leetcode.com/problems/two-sum/description -l python
 ```
 
-This command generates a Rust project with the following structure:
-- A `README.md` file describing the problem.
-- A `main.rs` file containing the initial problem code
+This command generates a Rust project with custom name and the following structure:
+- A `my_project/README.md` file describing the problem.
+- A `my_project/main.rs` file containing the initial problem code
 ```sh
-leetr https://leetcode.com/problems/two-sum/description rust
+leetr https://leetcode.com/problems/two-sum/description -l rust -d my_problem
 ```
-
-Using `leetr` without the language argument will generate a rust project by default
-```sh
-leetr https://leetcode.com/problems/two-sum/description
-```
-
 
 # Supported languages
 

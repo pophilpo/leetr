@@ -36,14 +36,14 @@ This command generates a Python 3 project with the following structure:
 - A `two_sum/README.md` file describing the problem.
 - A `two_sum/main.py` file containing the initial problem code
 ```sh
-leetr https://leetcode.com/problems/two-sum/description -l python
+leetr two-sum -l python
 ```
 
 This command generates a Rust project with custom name and the following structure:
 - A `my_project/README.md` file describing the problem.
 - A `my_project/main.rs` file containing the initial problem code
 ```sh
-leetr two-sum -l rust -d my_project
+leetr https://leetcode.com/problems/two-sum/description -l rust -d my_project
 ```
 
 # Supported languages

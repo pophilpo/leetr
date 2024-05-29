@@ -29,6 +29,9 @@ pub enum ProjectGeneratorError {
 
     #[error("ProjectGeneratorError [Command]: {0}")]
     Command(#[from] io::Error),
+
+    #[error("ProjectGeneratorError [Title Extraction]: {0}")]
+    TitleExtractionError(String),
 }
 
 #[derive(Error, Debug)]

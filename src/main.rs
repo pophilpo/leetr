@@ -9,6 +9,7 @@ mod queries;
 mod response_types;
 
 use config::Config;
+use log::{error, info};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -18,26 +19,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let problem_url = arguments
         .get_one::<String>("problem_url")
+        .cloned()
         .expect("Is required");
 
-    let title = problem_url
-        .trim_end_matches('/')
-        .rsplit('/')
-        .nth(1)
-        .unwrap()
-        .to_string();
+    let title = argument_parser::get_title(problem_url);
 
     let dir = arguments.get_one::<String>("directory").cloned();
 
     let lang = arguments
         .get_one::<String>("language")
-        .expect("Has a default value")
-        .clone();
+        .cloned()
+        .expect("Has a default value");
 
     let config = Config::new(lang)?;
 
-    let project_generator = project_generator::Generator::new(config, title, dir);
-    project_generator.generate_project().await?;
+    match title {
+        Ok(title) => {
+            info!("Using {} as problem title", title);
+            let project_generator = project_generator::Generator::new(config, title, dir);
+            project_generator.generate_project().await?;
 
-    Ok(())
+            Ok(())
+        }
+        Err(e) => {
+            error!("{}", e);
+            Ok(())
+        }
+    }
 }

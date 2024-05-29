@@ -31,7 +31,7 @@ pub fn get_title(input: String) -> Result<String, ProjectGeneratorError> {
         input
             .trim_end_matches('/')
             .rsplit("https://leetcode.com/problems")
-            .nth(0)
+            .next()
             .and_then(|s| s.split('/').nth(1))
             .map(|title| title.to_string())
             .ok_or_else(|| {

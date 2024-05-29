@@ -4,19 +4,24 @@ use crate::errors::GetResponseError;
 
 #[derive(Debug)]
 pub enum Response {
-    ContentResponse(ContentResponse),
-    EditorResponse(EditorResponse),
+    Content(ContentResponse),
+    Editor(EditorResponse),
+    ProblemSet(ProblemSetResponse),
 }
 impl Response {
     pub async fn from_response(response: reqwest::Response) -> Result<Self, GetResponseError> {
         let body = response.text().await?;
 
         if let Ok(content_response) = serde_json::from_str::<ContentResponse>(&body) {
-            return Ok(Response::ContentResponse(content_response));
+            return Ok(Response::Content(content_response));
         }
 
         if let Ok(editor_response) = serde_json::from_str::<EditorResponse>(&body) {
-            return Ok(Response::EditorResponse(editor_response));
+            return Ok(Response::Editor(editor_response));
+        }
+
+        if let Ok(problem_set_response) = serde_json::from_str::<ProblemSetResponse>(&body) {
+            return Ok(Response::ProblemSet(problem_set_response));
         }
 
         Err(GetResponseError::ParseError(serde_json::Error::custom(
@@ -28,16 +33,26 @@ impl Response {
         // Get markdown or code text based on the response type
 
         match self {
-            Response::ContentResponse(content_response) => {
+            Response::Content(content_response) => {
                 Some(content_response.data.question.content.clone())
             }
-            Response::EditorResponse(editor_response) => {
+            Response::Editor(editor_response) => {
                 let code_snippets = &editor_response.data.question.code_snippets;
                 code_snippets
                     .iter()
                     .find(|snippet| snippet.lang == lang)
                     .map(|snippet| snippet.code.clone())
             }
+            Response::ProblemSet(problem_set) => Some(
+                problem_set
+                    .data
+                    .problem_set_question_list
+                    .questions
+                    .iter()
+                    .map(|question| question.title_slug.as_str())
+                    .collect::<Vec<&str>>()
+                    .join("\n"),
+            ),
         }
     }
 }
@@ -104,4 +119,26 @@ pub struct CodeSnippet {
     pub lang_slug: String,
 
     pub code: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ProblemSetResponse {
+    data: ProblemSetData,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ProblemSetData {
+    #[serde(rename = "problemsetQuestionList")]
+    problem_set_question_list: ProblemSetQuestionList,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ProblemSetQuestionList {
+    questions: Vec<ProblemSetQuestion>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ProblemSetQuestion {
+    #[serde(rename = "titleSlug")]
+    title_slug: String,
 }

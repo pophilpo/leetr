@@ -41,10 +41,9 @@ pub fn get_title(input: String) -> Result<String, ProjectGeneratorError> {
                 ))
             })
     } else {
-        Ok(input.to_string())
+        Ok(input)
     }
 }
-
 #[cfg(test)]
 mod tests {
 
@@ -58,15 +57,18 @@ mod tests {
         assert_eq!(get_title(input).unwrap(), expected);
 
         let input = String::from("two-sum");
+
+        assert_eq!(get_title(input.clone()).unwrap(), input);
+
+        let input = String::from("https://leetcode.com/problems/two-sum");
         let expected = String::from("two-sum");
 
         assert_eq!(get_title(input).unwrap(), expected);
     }
 
     #[test]
-    #[should_panic]
     fn test_get_title_fails() {
-        let input = String::from("https://leetcode.com/problems");
-        get_title(input).unwrap();
+        let input = String::from("https://leetcode.com/problems/");
+        assert!(get_title(input).is_err());
     }
 }

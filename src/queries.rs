@@ -1,8 +1,25 @@
 use reqwest::Client;
 use serde::Serialize;
 
+use serde_json::{Map, Value};
+
 use crate::errors::GetResponseError;
 use crate::response_types::Response;
+
+const PROBLEM_SET_QUERY: &str = r#"
+    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+        problemsetQuestionList: questionList(
+            categorySlug: $categorySlug
+            limit: $limit
+            skip: $skip
+            filters: $filters
+  ) {
+    questions: data {
+      titleSlug
+    }
+  }
+}
+"#;
 
 const QUESTION_CONTENT_QUERY: &str = r#"
     query questionContent($titleSlug: String!) {
@@ -30,7 +47,7 @@ const QUESTION_EDITOR_DATA_QUERY: &str = r#"
         frontendPreviews
   }
 }
-    "#;
+"#;
 
 #[derive(Serialize, Debug)]
 pub struct GraphQLPayload {
@@ -57,6 +74,20 @@ impl GraphQLPayload {
 
         GraphQLPayload {
             query: QUESTION_EDITOR_DATA_QUERY.to_string(),
+            variables,
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn problem_set_query() -> Self {
+        let variables = serde_json::json!({
+            "categorySlug": "all-code-essentials",
+            "limit": 10000,
+            "filters": Map::<String, Value>::new(),
+        });
+
+        Self {
+            query: PROBLEM_SET_QUERY.to_string(),
             variables,
         }
     }

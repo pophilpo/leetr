@@ -5,9 +5,10 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
 
-use crate::errors::ProjectGeneratorError;
+use crate::errors::{GetResponseError, ProjectGeneratorError};
 use crate::project_templates::{PYTHON_TEMPLATE, RUST_TEMPLATE};
 use crate::queries;
+use crate::response_types::Response;
 
 pub enum ProjectType {
     Rust(String),
@@ -50,6 +51,12 @@ impl Generator {
 
         html::generate_markdown(self.project_title.clone(), &content, self.directory.clone())?;
         Ok(())
+    }
+
+    #[allow(dead_code)]
+    pub async fn get_problem_set(&self) -> Result<Response, GetResponseError> {
+        let query = queries::GraphQLPayload::problem_set_query();
+        query.get_response().await
     }
 
     async fn get_problem_content(&self) -> Result<String, ProjectGeneratorError> {

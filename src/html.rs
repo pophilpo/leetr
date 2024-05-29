@@ -4,6 +4,7 @@ use std::fs;
 pub fn generate_markdown(
     question_title: String,
     content: &str,
+    dir: String,
 ) -> Result<(), GenerateMarkdownError> {
     let title = format_title(&question_title);
     let markdown_content = html2md::parse_html(content);
@@ -12,11 +13,7 @@ pub fn generate_markdown(
 
     // TODO: Add save path as var
 
-    let filename = format!(
-        "{}/{}",
-        question_title.to_lowercase(),
-        String::from("README.md"),
-    );
+    let filename = format!("{}/{}", dir, String::from("README.md"),);
     Ok(fs::write(filename, full_markdown)?)
 }
 

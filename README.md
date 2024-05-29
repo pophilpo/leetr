@@ -43,7 +43,7 @@ This command generates a Rust project with custom name and the following structu
 - A `my_project/README.md` file describing the problem.
 - A `my_project/main.rs` file containing the initial problem code
 ```sh
-leetr two-sum -l rust -d my_problem
+leetr two-sum -l rust -d my_project
 ```
 
 # Supported languages

@@ -1,5 +1,4 @@
 mod argument_parser;
-mod config;
 mod errors;
 mod html;
 mod logger;
@@ -8,8 +7,9 @@ mod project_templates;
 mod queries;
 mod response_types;
 
-use config::Config;
-use log::{error, info};
+use log::error;
+
+use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -26,17 +26,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let dir = arguments.get_one::<String>("directory").cloned();
 
-    let lang = arguments
-        .get_one::<String>("language")
-        .cloned()
-        .expect("Has a default value");
-
-    let config = Config::new(lang)?;
+    let lang = match arguments.value_source("language") {
+        Some(_) => arguments
+            .get_one::<String>("language")
+            .cloned()
+            .expect("Is checked for presence"),
+        None => match env::var("LEETR_DEFAULT_LANGUAGE") {
+            Ok(value) => value,
+            Err(_) => String::from("rust"),
+        },
+    };
 
     match title {
         Ok(title) => {
-            info!("Using {} as problem title", title);
-            let project_generator = project_generator::Generator::new(config, title, dir);
+            let project_generator = project_generator::Generator::new(lang, title, dir);
             project_generator.generate_project().await?;
 
             Ok(())

@@ -16,7 +16,6 @@ pub fn parse_args() -> ArgMatches {
         .required(false)
         .short('l')
         .long("lang")
-        .default_value("rust")
         .help("Programming language used to setup the project");
 
     command!()

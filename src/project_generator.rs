@@ -1,4 +1,3 @@
-use crate::config::Config;
 use crate::html;
 use std::fs::{self, File};
 use std::io::Write;
@@ -26,20 +25,22 @@ impl From<String> for ProjectType {
 }
 
 pub struct Generator {
-    config: Config,
+    lang: ProjectType,
     project_title: String,
     directory: String,
 }
 
 impl Generator {
-    pub fn new(config: Config, project_title: String, dir: Option<String>) -> Self {
+    pub fn new(lang: String, project_title: String, dir: Option<String>) -> Self {
         let directory = match dir {
             Some(d) => d,
             None => project_title.clone(),
         };
 
+        let lang = ProjectType::from(lang);
+
         Self {
-            config,
+            lang,
             project_title,
             directory,
         }
@@ -77,7 +78,7 @@ impl Generator {
     }
 
     async fn init(&self) -> Result<(), ProjectGeneratorError> {
-        match &self.config.default_lang {
+        match &self.lang {
             ProjectType::Rust(lang) => {
                 let code = self.get_editor_code(lang.to_string()).await?;
 

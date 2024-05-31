@@ -20,6 +20,9 @@ pub enum GetResponseError {
 
 #[derive(Error, Debug)]
 pub enum ProjectGeneratorError {
+    #[error("🚫 Directory '{0}' already exists, please use another name.")]
+    DirectoryExists(String),
+
     #[error(transparent)]
     GenerateMarkdown(#[from] GenerateMarkdownError),
 
@@ -31,4 +34,7 @@ pub enum ProjectGeneratorError {
 
     #[error("ProjectGeneratorError [Title Extraction]: {0}")]
     TitleExtractionError(String),
+
+    #[error("🚫 Language '{0}' is not supported yet, please select one from [{1}].")]
+    LanguageSupportIsNotAvailable(String, String),
 }

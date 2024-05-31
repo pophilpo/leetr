@@ -1,25 +1,34 @@
 use crate::html;
+use colored::*;
+use log::info;
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
+use strum::VariantNames;
 
 use crate::errors::{GetResponseError, ProjectGeneratorError};
 use crate::project_templates::{PYTHON_TEMPLATE, RUST_TEMPLATE};
 use crate::queries;
 use crate::response_types::Response;
 
+#[derive(strum_macros::Display, strum_macros::VariantNames)]
 pub enum ProjectType {
     Rust(String),
     Python3(String),
 }
 
-impl From<String> for ProjectType {
-    fn from(s: String) -> Self {
+impl TryFrom<String> for ProjectType {
+    type Error = ProjectGeneratorError;
+
+    fn try_from(s: String) -> Result<Self, Self::Error> {
         match s.to_ascii_lowercase().as_str() {
-            "rust" => Self::Rust("Rust".to_string()),
-            "python" => Self::Python3("Python3".to_string()),
-            _ => Self::Rust("Rust".to_string()),
+            "rust" => Ok(Self::Rust("Rust".to_string())),
+            "python" => Ok(Self::Python3("Python3".to_string())),
+            other => Err(ProjectGeneratorError::LanguageSupportIsNotAvailable(
+                other.to_string(),
+                ProjectType::VARIANTS.join(", "),
+            )),
         }
     }
 }
@@ -31,19 +40,27 @@ pub struct Generator {
 }
 
 impl Generator {
-    pub fn new(lang: String, project_title: String, dir: Option<String>) -> Self {
+    pub fn new(
+        lang: String,
+        project_title: String,
+        dir: Option<String>,
+    ) -> Result<Self, ProjectGeneratorError> {
         let directory = match dir {
             Some(d) => d,
             None => project_title.clone(),
         };
 
-        let lang = ProjectType::from(lang);
+        if fs::metadata(&directory).map_or(false, |metadata| metadata.is_dir()) {
+            return Err(ProjectGeneratorError::DirectoryExists(directory));
+        }
 
-        Self {
+        let lang = ProjectType::try_from(lang)?;
+
+        Ok(Self {
             lang,
             project_title,
             directory,
-        }
+        })
     }
 
     pub async fn generate_project(&self) -> Result<(), ProjectGeneratorError> {
@@ -51,6 +68,17 @@ impl Generator {
         let content = self.get_problem_content().await?;
 
         html::generate_markdown(self.project_title.clone(), &content, self.directory.clone())?;
+
+        info!(
+            "{}",
+            format!(
+                "🌟 Leetcode project was created in dir {} with language {}",
+                &self.directory.bold(),
+                &self.lang
+            )
+            .green()
+        );
+
         Ok(())
     }
 
@@ -104,6 +132,7 @@ impl Generator {
 
                 let new_code = RUST_TEMPLATE.replace("{solution code}", &new_code);
                 Command::new("cargo")
+                    .arg("--quiet")
                     .arg("new")
                     .arg(&self.directory)
                     .status()?;

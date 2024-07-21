@@ -1,6 +1,5 @@
-use reqwest::Client;
+use reqwest::blocking::Client;
 use serde::Serialize;
-
 use serde_json::{Map, Value};
 
 use crate::errors::GetResponseError;
@@ -92,15 +91,14 @@ impl GraphQLPayload {
         }
     }
 
-    pub async fn get_response(&self) -> Result<Response, GetResponseError> {
+    pub fn get_response(&self) -> Result<Response, GetResponseError> {
         let client = Client::new();
         let response = client
             .post("https://leetcode.com/graphql")
             .header("Content-Type", "application/json")
             .json(&self)
-            .send()
-            .await?;
+            .send()?;
 
-        Response::from_response(response).await
+        Response::from_response(response)
     }
 }

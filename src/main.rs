@@ -1,3 +1,8 @@
+use std::env;
+use std::process;
+
+use log::error;
+
 mod argument_parser;
 mod errors;
 mod html;
@@ -7,12 +12,7 @@ mod project_templates;
 mod queries;
 mod response_types;
 
-use log::error;
-use std::env;
-use std::process;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     logger::init();
 
     let arguments = argument_parser::parse_args();
@@ -49,7 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match generator {
         Ok(generator) => {
-            generator.generate_project().await?;
+            generator.generate_project()?;
             Ok(())
         }
         Err(e) => {

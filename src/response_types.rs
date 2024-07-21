@@ -1,3 +1,4 @@
+use reqwest::blocking::Response as ReqwestResponse;
 use serde::{de::Error, Deserialize};
 
 use crate::errors::GetResponseError;
@@ -9,8 +10,8 @@ pub enum Response {
     ProblemSet(ProblemSetResponse),
 }
 impl Response {
-    pub async fn from_response(response: reqwest::Response) -> Result<Self, GetResponseError> {
-        let body = response.text().await?;
+    pub fn from_response(response: ReqwestResponse) -> Result<Self, GetResponseError> {
+        let body = response.text()?;
 
         if let Ok(content_response) = serde_json::from_str::<ContentResponse>(&body) {
             return Ok(Response::Content(content_response));
@@ -74,7 +75,7 @@ pub struct Question {
     pub data_schemas: Vec<String>,
 
     #[serde(rename = "mysqlSchemas")]
-    pub mysql_shemas: Vec<String>,
+    pub mysql_schemas: Vec<String>,
 }
 
 #[derive(Deserialize, Debug)]

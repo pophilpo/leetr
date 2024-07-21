@@ -1,13 +1,14 @@
-use crate::html;
-use colored::*;
-use log::info;
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
+
+use colored::*;
+use log::info;
 use strum::VariantNames;
 
 use crate::errors::{GetResponseError, ProjectGeneratorError};
+use crate::html;
 use crate::project_templates::{PYTHON_TEMPLATE, RUST_TEMPLATE};
 use crate::queries;
 use crate::response_types::Response;
@@ -63,16 +64,16 @@ impl Generator {
         })
     }
 
-    pub async fn generate_project(&self) -> Result<(), ProjectGeneratorError> {
-        self.init().await?;
-        let content = self.get_problem_content().await?;
+    pub fn generate_project(&self) -> Result<(), ProjectGeneratorError> {
+        self.init()?;
+        let content = self.get_problem_content()?;
 
         html::generate_markdown(self.project_title.clone(), &content, self.directory.clone())?;
 
         info!(
             "{}",
             format!(
-                "🌟 Leetcode project was created in dir {} with language {}",
+                "🌟 LeetCode project was created in dir {} with language {}",
                 &self.directory.bold(),
                 &self.lang
             )
@@ -83,32 +84,32 @@ impl Generator {
     }
 
     #[allow(dead_code)]
-    pub async fn get_problem_set(&self) -> Result<Response, GetResponseError> {
+    pub fn get_problem_set(&self) -> Result<Response, GetResponseError> {
         let query = queries::GraphQLPayload::problem_set_query();
-        query.get_response().await
+        query.get_response()
     }
 
-    async fn get_problem_content(&self) -> Result<String, ProjectGeneratorError> {
+    fn get_problem_content(&self) -> Result<String, ProjectGeneratorError> {
         let query = queries::GraphQLPayload::content_query(self.project_title.clone());
-        let response = query.get_response().await?;
+        let response = query.get_response()?;
 
         // FIXME: pass lang heere
         let content = response.get_content(String::from("rust"));
         Ok(content.unwrap())
     }
 
-    async fn get_editor_code(&self, project_lang: String) -> Result<String, ProjectGeneratorError> {
+    fn get_editor_code(&self, project_lang: String) -> Result<String, ProjectGeneratorError> {
         let query = queries::GraphQLPayload::editor_data_query(self.project_title.clone());
-        let response = query.get_response().await?;
+        let response = query.get_response()?;
         let content = response.get_content(project_lang);
 
         Ok(content.unwrap())
     }
 
-    async fn init(&self) -> Result<(), ProjectGeneratorError> {
+    fn init(&self) -> Result<(), ProjectGeneratorError> {
         match &self.lang {
             ProjectType::Rust(lang) => {
-                let code = self.get_editor_code(lang.to_string()).await?;
+                let code = self.get_editor_code(lang.to_string())?;
 
                 // Insert todo inside the code;
                 let insert_str = r#"todo!("Implement a solution");"#;
@@ -116,7 +117,7 @@ impl Generator {
                 let string_to_find = format!("fn {}", &self.project_title.replace('-', "_"));
                 let new_code = if let Some(fn_pos) = code.find(&string_to_find) {
                     if let Some(brace_pos) = code[fn_pos..].find('{') {
-                        let insert_pos = fn_pos + brace_pos + 2; // +1 to insert right after '{'
+                        let insert_pos = fn_pos + brace_pos + 2;
                         format!(
                             "{}        {}\n{}",
                             &code[..insert_pos],
@@ -145,7 +146,7 @@ impl Generator {
             }
 
             ProjectType::Python3(lang) => {
-                let code = self.get_editor_code(lang.to_string()).await?;
+                let code = self.get_editor_code(lang.to_string())?;
                 let new_code = PYTHON_TEMPLATE.replace("{solution code}", &code);
 
                 fs::create_dir(&self.directory)?;

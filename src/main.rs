@@ -22,6 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .cloned()
         .expect("Is required");
 
+
     let title = argument_parser::get_title(problem_url);
 
     let dir = arguments.get_one::<String>("directory").cloned();
@@ -31,10 +32,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .get_one::<String>("language")
             .cloned()
             .expect("Is checked for presence"),
-        None => match env::var("LEETR_DEFAULT_LANGUAGE") {
-            Ok(value) => value,
-            Err(_) => String::from("rust"),
-        },
+
+        None => env::var("LEETR_DEFAULT_LANGUAGE").unwrap_or_else(|_| String::from("rust")),
     };
 
     let title = match title {

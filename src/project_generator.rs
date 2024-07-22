@@ -11,7 +11,7 @@ use crate::errors::{GetResponseError, ProjectGeneratorError};
 use crate::html;
 use crate::project_templates::{PYTHON_TEMPLATE, RUST_TEMPLATE};
 use crate::queries;
-use crate::response_types::Response;
+use crate::response_types::{ContentResponse, EditorResponse, ProblemSetResponse, Response};
 
 #[derive(strum_macros::Display, strum_macros::VariantNames)]
 pub enum ProjectType {
@@ -86,12 +86,12 @@ impl Generator {
     #[allow(dead_code)]
     pub fn get_problem_set(&self) -> Result<Response, GetResponseError> {
         let query = queries::GraphQLPayload::problem_set_query();
-        query.get_response()
+        query.get_response::<ProblemSetResponse>()
     }
 
     fn get_problem_content(&self) -> Result<String, ProjectGeneratorError> {
         let query = queries::GraphQLPayload::content_query(self.project_title.clone());
-        let response = query.get_response()?;
+        let response = query.get_response::<ContentResponse>()?;
 
         // FIXME: pass lang heere
         let content = response.get_content(String::from("rust"));
@@ -100,7 +100,7 @@ impl Generator {
 
     fn get_editor_code(&self, project_lang: String) -> Result<String, ProjectGeneratorError> {
         let query = queries::GraphQLPayload::editor_data_query(self.project_title.clone());
-        let response = query.get_response()?;
+        let response = query.get_response::<EditorResponse>()?;
         let content = response.get_content(project_lang);
 
         Ok(content.unwrap())

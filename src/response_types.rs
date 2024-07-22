@@ -9,27 +9,50 @@ pub enum Response {
     Editor(EditorResponse),
     ProblemSet(ProblemSetResponse),
 }
-impl Response {
-    pub fn from_response(response: ReqwestResponse) -> Result<Self, GetResponseError> {
+
+pub trait ResponseHandler {
+    fn parse_response(response: ReqwestResponse) -> Result<Response, GetResponseError>;
+}
+
+impl ResponseHandler for ContentResponse {
+    fn parse_response(response: ReqwestResponse) -> Result<Response, GetResponseError> {
         let body = response.text()?;
 
         if let Ok(content_response) = serde_json::from_str::<ContentResponse>(&body) {
-            return Ok(Response::Content(content_response));
+            Ok(Response::Content(content_response))
+        } else {
+            Err(GetResponseError::ParseError(serde_json::Error::custom("Failed to deserialize response")))
         }
+    }
+}
+
+impl ResponseHandler for EditorResponse {
+    fn parse_response(response: ReqwestResponse) -> Result<Response, GetResponseError> {
+        let body = response.text()?;
 
         if let Ok(editor_response) = serde_json::from_str::<EditorResponse>(&body) {
-            return Ok(Response::Editor(editor_response));
+            Ok(Response::Editor(editor_response))
+        } else {
+            Err(GetResponseError::ParseError(serde_json::Error::custom("Failed to deserialize response")))
         }
+    }
+}
+
+
+impl ResponseHandler for ProblemSetResponse {
+    fn parse_response(response: ReqwestResponse) -> Result<Response, GetResponseError> {
+        let body = response.text()?;
 
         if let Ok(problem_set_response) = serde_json::from_str::<ProblemSetResponse>(&body) {
-            return Ok(Response::ProblemSet(problem_set_response));
+            Ok(Response::ProblemSet(problem_set_response))
+        } else {
+            Err(GetResponseError::ParseError(serde_json::Error::custom("Failed to deserialize response")))
         }
-
-        Err(GetResponseError::ParseError(serde_json::Error::custom(
-            "Failed to deserialize response",
-        )))
     }
+}
 
+
+impl Response {
     pub fn get_content(&self, lang: String) -> Option<String> {
         // Get markdown or code text based on the response type
 
@@ -71,11 +94,6 @@ pub struct QuestionData {
 #[derive(Deserialize, Debug)]
 pub struct Question {
     pub content: String,
-    #[serde(rename = "dataSchemas")]
-    pub data_schemas: Vec<String>,
-
-    #[serde(rename = "mysqlSchemas")]
-    pub mysql_schemas: Vec<String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -90,35 +108,13 @@ pub struct EditorData {
 
 #[derive(Deserialize, Debug)]
 pub struct EditorQuestion {
-    #[serde(rename = "questionId")]
-    pub question_id: String,
-
-    #[serde(rename = "questionFrontendId")]
-    pub question_frontend_id: String,
-
     #[serde(rename = "codeSnippets")]
     pub code_snippets: Vec<CodeSnippet>,
-
-    #[serde(rename = "envInfo")]
-    pub env_info: String,
-
-    #[serde(rename = "enableRunCode")]
-    pub enable_run_code: bool,
-
-    #[serde(rename = "hasFrontendPreview")]
-    pub has_frontend_preview: bool,
-
-    #[serde(rename = "frontendPreviews")]
-    pub frontend_previews: String,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct CodeSnippet {
     pub lang: String,
-
-    #[serde(rename = "langSlug")]
-    pub lang_slug: String,
-
     pub code: String,
 }
 

@@ -3,7 +3,7 @@ use serde::Serialize;
 use serde_json::{Map, Value};
 
 use crate::errors::GetResponseError;
-use crate::response_types::Response;
+use crate::response_types::{Response, ResponseHandler};
 
 const PROBLEM_SET_QUERY: &str = r#"
     query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
@@ -91,7 +91,10 @@ impl GraphQLPayload {
         }
     }
 
-    pub fn get_response(&self) -> Result<Response, GetResponseError> {
+    pub fn get_response<T>(&self) -> Result<Response, GetResponseError>
+    where
+        T: ResponseHandler,
+    {
         let client = Client::new();
         let response = client
             .post("https://leetcode.com/graphql")
@@ -99,6 +102,6 @@ impl GraphQLPayload {
             .json(&self)
             .send()?;
 
-        Response::from_response(response)
+        T::parse_response(response)
     }
 }

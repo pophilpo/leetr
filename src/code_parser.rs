@@ -85,7 +85,7 @@ mod tests {{
 }}"#,
                                     fn_name, test_code
                                 );
-                                let final_code = format!("{}{}\n", no_test_code, code);
+                                let final_code = format!("struct Solution {{}}\n{}{}\n", no_test_code, code);
                                 return Ok(final_code);
                             }
                         }
@@ -152,7 +152,8 @@ mod tests {
         <strong>Follow-up:&nbsp;</strong>Can you come up with an algorithm that is less than <code>O(n<sup>2</sup>)</code> time complexity?
     "#;
 
-        let expected_code = r#"impl Solution {
+        let expected_code = r#"struct Solution {}
+impl Solution {
     pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {
         todo!("Implement solution!");
     }
@@ -215,7 +216,8 @@ mod tests {
 
     }
 }"#;
-        let expected_code = r#"impl Solution {
+        let expected_code = r#"struct Solution {}
+impl Solution {
     pub fn letter_combinations(digits: String) -> Vec<String> {
         todo!("Implement solution!");
     }
@@ -281,7 +283,8 @@ mod tests {
 
     }
 }"#;
-        let expected_code = r#"impl Solution {
+        let expected_code = r#"struct Solution {}
+impl Solution {
     pub fn length_of_longest_substring(s: String) -> i32 {
         todo!("Implement solution!");
     }

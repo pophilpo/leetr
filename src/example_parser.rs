@@ -32,7 +32,6 @@ pub struct ExampleParser {
     pub examples: Vec<Example>,
 }
 
-
 #[allow(dead_code)]
 impl ExampleParser {
     fn html_to_text(html_content: &str) -> String {
@@ -117,7 +116,7 @@ impl ExampleParser {
     }
 
     fn parse_value(value: &str) -> InputType {
-        if value.starts_with('"') && value.ends_with(']') {
+        if value.starts_with('[') && value.ends_with(']') {
             let trimmed = &value[1..value.len() - 1];
             if trimmed.contains('"') {
                 let vec_str: Vec<String> = trimmed.split(',').map(|s| s.trim().replace('"', "")).collect();

@@ -13,9 +13,27 @@ pub enum InputType {
     VecInt(Vec<i32>),
     String(String),
     VecString(Vec<String>),
-    // TODO: Well, run the big test and fix 1 by 1
+    // TODO: Implement chars
 }
-
+impl InputType {
+    pub fn to_string_rust(&self) -> String {
+        match self {
+            InputType::Int(value) => format!("{}", value),
+            InputType::VecInt(values) => {
+                let values_str: Vec<String> = values.iter().map(|v| v.to_string()).collect();
+                format!("vec![{}]", values_str.join(", "))
+            }
+            InputType::String(value) => format!("String::from(\"{}\")", value),
+            InputType::VecString(values) => {
+                let values_str: Vec<String> = values
+                    .iter()
+                    .map(|v| format!("String::from(\"{}\")", v))
+                    .collect();
+                format!("vec![{}]", values_str.join(", "))
+            }
+        }
+    }
+}
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -23,7 +41,6 @@ pub struct Example {
     pub inputs: HashMap<String, InputType>,
     pub output: InputType,
 }
-
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct ExampleParser {
@@ -58,28 +75,44 @@ impl ExampleParser {
         let example_sections = self.get_example_sections()?;
         let example_sections = self.split_examples(example_sections);
 
-        let examples = example_sections.iter().filter_map(|example| self.parse_example(example)).collect::<Vec<Example>>();
+        let examples = example_sections
+            .iter()
+            .filter_map(|example| self.parse_example(example))
+            .collect::<Vec<Example>>();
 
         self.examples = examples;
         Ok(())
     }
 
     fn get_example_sections(&self) -> Result<&str, ExampleParsingError> {
-        let start = self.description.find("Example 1:").ok_or(ExampleParsingError::CouldNotFindExample)?;
-        let end = self.description.rfind("Constraints:").ok_or(ExampleParsingError::CouldNotFindConstraints)?;
+        let start = self
+            .description
+            .find("Example 1:")
+            .ok_or(ExampleParsingError::CouldNotFindExample)?;
+        let end = self
+            .description
+            .rfind("Constraints:")
+            .ok_or(ExampleParsingError::CouldNotFindConstraints)?;
 
         Ok(&self.description[start..end])
     }
 
     fn split_examples(&self, examples_section: &str) -> Vec<String> {
-        examples_section.split("Example ").filter_map(|s| {
-            let cleaned: String = s.replace('\n', " ").split_whitespace().collect::<Vec<&str>>().join(" ");
-            if cleaned.is_empty() {
-                None
-            } else {
-                Some(format!("Example {}", cleaned))
-            }
-        }).collect()
+        examples_section
+            .split("Example ")
+            .filter_map(|s| {
+                let cleaned: String = s
+                    .replace('\n', " ")
+                    .split_whitespace()
+                    .collect::<Vec<&str>>()
+                    .join(" ");
+                if cleaned.is_empty() {
+                    None
+                } else {
+                    Some(format!("Example {}", cleaned))
+                }
+            })
+            .collect()
     }
 
     fn parse_example(&self, example: &str) -> Option<Example> {
@@ -87,7 +120,6 @@ impl ExampleParser {
         let output_start = example.find("Output")?;
         let remainder = &example[output_start + 7..];
         let end_of_line = remainder.find(" Explanation").unwrap_or(remainder.len());
-
 
         // Adding the lengths of the actual words of Input:/Output:
         let inputs_str = example[input_start + 6..output_start].trim();
@@ -119,10 +151,16 @@ impl ExampleParser {
         if value.starts_with('[') && value.ends_with(']') {
             let trimmed = &value[1..value.len() - 1];
             if trimmed.contains('"') {
-                let vec_str: Vec<String> = trimmed.split(',').map(|s| s.trim().replace('"', "")).collect();
+                let vec_str: Vec<String> = trimmed
+                    .split(',')
+                    .map(|s| s.trim().replace('"', ""))
+                    .collect();
                 InputType::VecString(vec_str)
             } else {
-                let vec_int: Vec<i32> = trimmed.split(',').filter_map(|s| s.trim().parse().ok()).collect();
+                let vec_int: Vec<i32> = trimmed
+                    .split(',')
+                    .filter_map(|s| s.trim().parse().ok())
+                    .collect();
                 InputType::VecInt(vec_int)
             }
         } else if value.starts_with('"') && value.ends_with('"') {
@@ -130,7 +168,7 @@ impl ExampleParser {
         } else {
             match value.parse::<i32>() {
                 Ok(int_val) => InputType::Int(int_val),
-                Err(_) => InputType::String(value.to_string()),  // Default to String if parsing fails
+                Err(_) => InputType::String(value.to_string()), // Default to String if parsing fails
             }
         }
     }
@@ -298,10 +336,12 @@ mod tests {
 
         let parser_with_combinations = ExampleParser::new(HTML_CONTENT_WITH_COMBINATIONS);
         let section_with_combinations = parser_with_combinations.get_example_sections().unwrap();
-        let examples_with_combinations = parser_with_combinations.split_examples(section_with_combinations);
+        let examples_with_combinations =
+            parser_with_combinations.split_examples(section_with_combinations);
         assert_eq!(examples_with_combinations.len(), 3);
         assert!(examples_with_combinations[0].contains("Input: digits = \"23\""));
-        assert!(examples_with_combinations[0].contains("Output: [\"ad\",\"ae\",\"af\",\"bd\",\"be\",\"bf\",\"cd\",\"ce\",\"cf\"]"));
+        assert!(examples_with_combinations[0]
+            .contains("Output: [\"ad\",\"ae\",\"af\",\"bd\",\"be\",\"bf\",\"cd\",\"ce\",\"cf\"]"));
     }
 
     #[test]
@@ -322,9 +362,15 @@ mod tests {
         assert_eq!(
             output_with_combinations,
             &InputType::VecString(vec![
-                "ad".to_string(), "ae".to_string(), "af".to_string(),
-                "bd".to_string(), "be".to_string(), "bf".to_string(),
-                "cd".to_string(), "ce".to_string(), "cf".to_string(),
+                "ad".to_string(),
+                "ae".to_string(),
+                "af".to_string(),
+                "bd".to_string(),
+                "be".to_string(),
+                "bf".to_string(),
+                "cd".to_string(),
+                "ce".to_string(),
+                "cf".to_string(),
             ])
         );
     }
@@ -346,7 +392,10 @@ mod tests {
         let inputs = parsed_example.inputs;
 
         assert_eq!(inputs.len(), 1);
-        assert_eq!(inputs.get("s"), Some(&InputType::String("abcabcbb".to_string())));
+        assert_eq!(
+            inputs.get("s"),
+            Some(&InputType::String("abcabcbb".to_string()))
+        );
 
         let parser_with_vec = ExampleParser::new(HTML_CONTENT_WITH_VEC);
         let section_with_vec = parser_with_vec.get_example_sections().unwrap();
@@ -356,17 +405,27 @@ mod tests {
         let inputs_with_vec = parsed_example_with_vec.inputs;
 
         assert_eq!(inputs_with_vec.len(), 2);
-        assert_eq!(inputs_with_vec.get("nums"), Some(&InputType::VecInt(vec![2, 7, 11, 15])));
+        assert_eq!(
+            inputs_with_vec.get("nums"),
+            Some(&InputType::VecInt(vec![2, 7, 11, 15]))
+        );
         assert_eq!(inputs_with_vec.get("target"), Some(&InputType::Int(9)));
 
         let parser_with_combinations = ExampleParser::new(HTML_CONTENT_WITH_COMBINATIONS);
         let section_with_combinations = parser_with_combinations.get_example_sections().unwrap();
-        let examples_with_combinations = parser_with_combinations.split_examples(section_with_combinations);
+        let examples_with_combinations =
+            parser_with_combinations.split_examples(section_with_combinations);
         let example_with_combinations = &examples_with_combinations[0];
-        let parsed_example_with_combinations = parser_with_combinations.parse_example(example_with_combinations).unwrap();
+        let parsed_example_with_combinations = parser_with_combinations
+            .parse_example(example_with_combinations)
+            .unwrap();
         let inputs_with_combinations = parsed_example_with_combinations.inputs;
 
         assert_eq!(inputs_with_combinations.len(), 1);
-        assert_eq!(inputs_with_combinations.get("digits"), Some(&InputType::String("23".to_string())));
+        assert_eq!(
+            inputs_with_combinations.get("digits"),
+            Some(&InputType::String("23".to_string()))
+        );
     }
 }
+

@@ -2,6 +2,7 @@ use std::io;
 
 use reqwest::Error as ReqwestError;
 use serde_json::Error as SerdeError;
+use syn::Error as SynError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -47,4 +48,10 @@ pub enum ExampleParsingError {
 
     #[error("Could not find Constraints section to stop the parsing")]
     CouldNotFindConstraints,
+}
+
+#[derive(Error, Debug)]
+pub enum CodeParserError {
+    #[error("Could not read file: {0}")]
+    CouldNotReadFile(#[from] SynError),
 }

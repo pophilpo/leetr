@@ -26,4 +26,7 @@ thiserror = "1.0.60"
 tl = "0.7.8"
 toml = "0.8.12"
 scraper = "0.19.1"
-
+prettyplease = "0.2.20"
+syn = { version = "2.0", features = ["full"] }
+proc-macro2 = "1.0.84"
+quote = "1.0.36"

@@ -6,6 +6,7 @@ use errors::ExampleParsingError;
 
 use crate::errors;
 
+#[allow(dead_code)]
 #[derive(Debug, Eq, PartialEq)]
 pub enum InputType {
     Int(i32),
@@ -16,11 +17,14 @@ pub enum InputType {
 }
 
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct Example {
     pub inputs: HashMap<String, InputType>,
     pub output: InputType,
 }
+
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct ExampleParser {
     // The LeetCode Markdown text
@@ -28,6 +32,8 @@ pub struct ExampleParser {
     pub examples: Vec<Example>,
 }
 
+
+#[allow(dead_code)]
 impl ExampleParser {
     fn html_to_text(html_content: &str) -> String {
         let document = Html::parse_document(html_content);
@@ -68,7 +74,7 @@ impl ExampleParser {
 
     fn split_examples(&self, examples_section: &str) -> Vec<String> {
         examples_section.split("Example ").filter_map(|s| {
-            let cleaned: String = s.replace("\n", " ").split_whitespace().collect::<Vec<&str>>().join(" ");
+            let cleaned: String = s.replace('\n', " ").split_whitespace().collect::<Vec<&str>>().join(" ");
             if cleaned.is_empty() {
                 None
             } else {
@@ -111,17 +117,17 @@ impl ExampleParser {
     }
 
     fn parse_value(value: &str) -> InputType {
-        if value.starts_with("[") && value.ends_with("]") {
+        if value.starts_with('"') && value.ends_with(']') {
             let trimmed = &value[1..value.len() - 1];
-            if trimmed.contains("\"") {
-                let vec_str: Vec<String> = trimmed.split(",").map(|s| s.trim().replace("\"", "")).collect();
+            if trimmed.contains('"') {
+                let vec_str: Vec<String> = trimmed.split(',').map(|s| s.trim().replace('"', "")).collect();
                 InputType::VecString(vec_str)
             } else {
-                let vec_int: Vec<i32> = trimmed.split(",").filter_map(|s| s.trim().parse().ok()).collect();
+                let vec_int: Vec<i32> = trimmed.split(',').filter_map(|s| s.trim().parse().ok()).collect();
                 InputType::VecInt(vec_int)
             }
-        } else if value.starts_with("\"") && value.ends_with("\"") {
-            InputType::String(value.trim_matches('\"').to_string())
+        } else if value.starts_with('"') && value.ends_with('"') {
+            InputType::String(value.trim_matches('"').to_string())
         } else {
             match value.parse::<i32>() {
                 Ok(int_val) => InputType::Int(int_val),

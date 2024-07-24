@@ -4,6 +4,7 @@ use std::process;
 use log::error;
 
 mod argument_parser;
+mod example_parser;
 mod errors;
 mod html;
 mod logger;

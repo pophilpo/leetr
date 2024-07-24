@@ -1,6 +1,7 @@
+use std::io;
+
 use reqwest::Error as ReqwestError;
 use serde_json::Error as SerdeError;
-use std::io;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -37,4 +38,13 @@ pub enum ProjectGeneratorError {
 
     #[error("🚫 Language '{0}' is not supported yet, please select one from [{1}].")]
     LanguageSupportIsNotAvailable(String, String),
+}
+
+#[derive(Error, Debug)]
+pub enum ExampleParsingError {
+    #[error("Could not find the first example to parse")]
+    CouldNotFindExample,
+
+    #[error("Could not find Constraints section to stop the parsing")]
+    CouldNotFindConstraints,
 }

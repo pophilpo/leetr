@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use scraper::{Html, Selector};
 
 use errors::ExampleParsingError;
@@ -38,7 +36,7 @@ impl InputType {
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct Example {
-    pub inputs: HashMap<String, InputType>,
+    pub inputs: Vec<InputType>,
     pub output: InputType,
 }
 #[allow(dead_code)]
@@ -131,16 +129,17 @@ impl ExampleParser {
         Some(Example { inputs, output })
     }
 
-    fn parse_inputs(&self, input_str: &str) -> HashMap<String, InputType> {
-        let mut inputs = HashMap::new();
+    fn parse_inputs(&self, input_str: &str) -> Vec<InputType> {
+        let mut inputs = Vec::new();
 
         for input in input_str.rsplitn(2, ',') {
-            if let Some((key, value)) = input.split_once('=') {
+            if let Some((_, value)) = input.split_once('=') {
                 let parsed_value = Self::parse_value(value.trim());
-                inputs.insert(key.trim().to_string(), parsed_value);
+                inputs.push(parsed_value);
             }
         }
-        inputs
+        // This is a very important rev, because we do a R-split the inputs will be in the wrong order
+        inputs.into_iter().rev().collect::<Vec<InputType>>()
     }
 
     fn parse_output(&self, output_str: &str) -> InputType {
@@ -393,8 +392,8 @@ mod tests {
 
         assert_eq!(inputs.len(), 1);
         assert_eq!(
-            inputs.get("s"),
-            Some(&InputType::String("abcabcbb".to_string()))
+            inputs[0],
+            InputType::String("abcabcbb".to_string())
         );
 
         let parser_with_vec = ExampleParser::new(HTML_CONTENT_WITH_VEC);
@@ -406,10 +405,10 @@ mod tests {
 
         assert_eq!(inputs_with_vec.len(), 2);
         assert_eq!(
-            inputs_with_vec.get("nums"),
-            Some(&InputType::VecInt(vec![2, 7, 11, 15]))
+            inputs_with_vec[0],
+            InputType::VecInt(vec![2, 7, 11, 15])
         );
-        assert_eq!(inputs_with_vec.get("target"), Some(&InputType::Int(9)));
+        assert_eq!(inputs_with_vec[1], InputType::Int(9));
 
         let parser_with_combinations = ExampleParser::new(HTML_CONTENT_WITH_COMBINATIONS);
         let section_with_combinations = parser_with_combinations.get_example_sections().unwrap();
@@ -423,8 +422,8 @@ mod tests {
 
         assert_eq!(inputs_with_combinations.len(), 1);
         assert_eq!(
-            inputs_with_combinations.get("digits"),
-            Some(&InputType::String("23".to_string()))
+            inputs_with_combinations[0],
+            InputType::String("23".to_string())
         );
     }
 }

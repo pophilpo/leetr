@@ -2,7 +2,7 @@ use prettyplease::unparse;
 use syn::{File, ImplItem, Item};
 
 use crate::errors::CodeParserError;
-use crate::example_parser::{ExampleParser, InputType};
+use crate::example_parser::ExampleParser;
 use crate::project_generator::ProjectType;
 
 pub struct CodeParser<'a> {
@@ -59,24 +59,9 @@ impl<'a> CodeParser<'a> {
                                     let inputs = &example.inputs;
                                     let output = &example.output;
 
-                                    let mut key_value_pairs: Vec<(&String, &InputType)> =
-                                        inputs.iter().collect();
-                                    key_value_pairs.sort_by(|a, b| a.0.cmp(b.0));
-
-                                    let inputs_string: Vec<String> = key_value_pairs
-                                        .iter()
-                                        .map(|(key, value)| {
-                                            format!("{}={}", key, value.to_string_rust())
-                                        })
-                                        .collect();
-
-                                    // TODO: After very thorough testing is done, remove the sorting of the hashmap
-                                    // TODO: It is needed so that the output is consistent for testing
+                                    let inputs_string: Vec<String> = inputs.iter().map(|value| value.to_string_rust()).collect();
                                     let inputs_string = inputs_string.join(", ");
-                                    // let inputs_string: Vec<String> = inputs.iter().map(|(key, value)| format!("{}={}", key, value.to_string())).collect();
-                                    // let inputs_string = inputs_string.join(" ,");
 
-                                    // TODO: In need of adding .into() for String/str types
                                     let fn_input_string =
                                         format!("Solution::{}({})", fn_name, inputs_string);
                                     let assert_code = format!(
@@ -178,9 +163,9 @@ mod tests {
     use super::*;
     #[test]
     fn test_two_sum() {
-        assert_eq!(vec![0, 1], Solution::two_sum(nums=vec![2, 7, 11, 15], target=9));
-        assert_eq!(vec![1, 2], Solution::two_sum(nums=vec![3, 2, 4], target=6));
-        assert_eq!(vec![0, 1], Solution::two_sum(nums=vec![3, 3], target=6));
+        assert_eq!(vec![0, 1], Solution::two_sum(vec![2, 7, 11, 15], 9));
+        assert_eq!(vec![1, 2], Solution::two_sum(vec![3, 2, 4], 6));
+        assert_eq!(vec![0, 1], Solution::two_sum(vec![3, 3], 6));
     }
 }
 "#;
@@ -241,9 +226,9 @@ mod tests {
     use super::*;
     #[test]
     fn test_letter_combinations() {
-        assert_eq!(vec![String::from("ad"), String::from("ae"), String::from("af"), String::from("bd"), String::from("be"), String::from("bf"), String::from("cd"), String::from("ce"), String::from("cf")], Solution::letter_combinations(digits=String::from("23")));
-        assert_eq!(vec![], Solution::letter_combinations(digits=String::from("")));
-        assert_eq!(vec![String::from("a"), String::from("b"), String::from("c")], Solution::letter_combinations(digits=String::from("2")));
+        assert_eq!(vec![String::from("ad"), String::from("ae"), String::from("af"), String::from("bd"), String::from("be"), String::from("bf"), String::from("cd"), String::from("ce"), String::from("cf")], Solution::letter_combinations(String::from("23")));
+        assert_eq!(vec![], Solution::letter_combinations(String::from("")));
+        assert_eq!(vec![String::from("a"), String::from("b"), String::from("c")], Solution::letter_combinations(String::from("2")));
     }
 }
 "#;
@@ -307,9 +292,9 @@ mod tests {
     use super::*;
     #[test]
     fn test_length_of_longest_substring() {
-        assert_eq!(3, Solution::length_of_longest_substring(s=String::from("abcabcbb")));
-        assert_eq!(1, Solution::length_of_longest_substring(s=String::from("bbbbb")));
-        assert_eq!(3, Solution::length_of_longest_substring(s=String::from("pwwkew")));
+        assert_eq!(3, Solution::length_of_longest_substring(String::from("abcabcbb")));
+        assert_eq!(1, Solution::length_of_longest_substring(String::from("bbbbb")));
+        assert_eq!(3, Solution::length_of_longest_substring(String::from("pwwkew")));
     }
 }
 "#;

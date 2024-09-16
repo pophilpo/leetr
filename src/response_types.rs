@@ -60,3 +60,32 @@ impl QuestionEditorDataResponse {
         Ok(code_snippet)
     }
 }
+#[derive(Deserialize, Debug)]
+pub struct ConsolePanelConfigResponse {
+    pub data: ConsolePanelConfigData,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ConsolePanelConfigData {
+    pub question: Option<ConsolePanelConfigQuestion>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ConsolePanelConfigQuestion {
+    #[serde(rename = "exampleTestcaseList")]
+    pub example_testcase_list: Vec<String>,
+}
+
+impl ConsolePanelConfigResponse {
+    // Helper method to get example test cases
+    pub fn get_example_testcases(&self) -> Result<Vec<String>, ContentResponseError> {
+        let test_cases = self
+            .data
+            .question
+            .as_ref()
+            .ok_or(ContentResponseError::MissingQuestionDataError)?
+            .example_testcase_list
+            .clone();
+        Ok(test_cases)
+    }
+}

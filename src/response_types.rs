@@ -1,3 +1,4 @@
+use crate::errors::ContentResponseError;
 use serde::Deserialize;
 // Response types for 'questionContent' query
 #[derive(Deserialize, Debug)]
@@ -40,4 +41,22 @@ pub struct CodeSnippet {
     #[serde(rename = "langSlug")]
     pub lang_slug: String,
     pub code: String,
+}
+
+impl QuestionEditorDataResponse {
+    pub fn get_code_snippet(&self, lang: &str) -> Result<String, ContentResponseError> {
+        let code_snippet = self
+            .data
+            .question
+            .as_ref()
+            .ok_or(ContentResponseError::MissingQuestionDataError)?
+            .code_snippets
+            .iter()
+            .find(|snippet| snippet.lang_slug == lang)
+            .ok_or(ContentResponseError::LangCodeSnippetNotFoundError)?
+            .code
+            .clone();
+
+        Ok(code_snippet)
+    }
 }

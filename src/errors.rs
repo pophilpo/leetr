@@ -10,3 +10,12 @@ pub enum LeetCodeApiError {
     #[error("LeetCodeApiError [ReqwestError]: {0}")]
     ReqwestError(#[from] ReqwestError),
 }
+
+#[derive(Error, Debug)]
+pub enum ContentResponseError {
+    #[error("ContentResponseError [MissingQuestionData]")]
+    MissingQuestionDataError,
+
+    #[error("ContentResponseError [LangCodeSnippetNotFound]")]
+    LangCodeSnippetNotFoundError,
+}

@@ -12,18 +12,16 @@ name = "leetr"
 path = "src/main.rs"
 
 [dependencies]
-clap = { version = "4.5.4", features = ["cargo"] }
-colored = "2.1.0"
-env_logger = "0.11.3"
-html2md = "0.2.14"
-log = "0.4.21"
-reqwest = { version = "0.12.3", features = ["json", "blocking"] }
+clap = { version = "4.5.4", features = ["derive"] }
+reqwest = { version = "0.11", features = ["json", "blocking"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-strum = "0.26"
-strum_macros = "0.26"
-thiserror = "1.0.60"
-tl = "0.7.8"
-toml = "0.8.12"
-scraper = "0.19.1"
-
+thiserror = "1.0"
+log = "0.4"
+env_logger = "0.11"
+syn = { version = "2.0", features = ["full", "extra-traits"] }
+regex = "1.10.6"
+quote = "1.0.37"
+fern = { version = "0.6", features = ["colored"] }
+colored = "2.0"
+chrono = "0.4"

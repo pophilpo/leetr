@@ -14,6 +14,8 @@ fn main() {
 
     info!("Sending request");
     let response = client.get_editor_data().unwrap();
+    debug!("Full code {:?}", response);
+    let code = response.get_code_snippet("rust").unwrap();
     info!("Got response");
-    debug!("{:?}", response);
+    debug!("{:?}", code);
 }

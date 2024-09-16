@@ -1,0 +1,8 @@
+query questionContent($titleSlug: String!) {
+  question(titleSlug: $titleSlug) {
+    questionId
+    title
+    content
+    translatedContent
+  }
+}

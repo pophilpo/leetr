@@ -1,0 +1,10 @@
+query questionEditorData($titleSlug: String!) {
+  question(titleSlug: $titleSlug) {
+    codeSnippets {
+      lang
+      langSlug
+      code
+    }
+    exampleTestcaseList
+  }
+}

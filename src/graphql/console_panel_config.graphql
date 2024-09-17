@@ -1,5 +1,6 @@
 query consolePanelConfig($titleSlug: String!) {
         question(titleSlug: $titleSlug) {
             exampleTestcaseList
+            metaData
         }
     }

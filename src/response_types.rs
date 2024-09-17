@@ -74,18 +74,20 @@ pub struct ConsolePanelConfigData {
 pub struct ConsolePanelConfigQuestion {
     #[serde(rename = "exampleTestcaseList")]
     pub example_testcase_list: Vec<String>,
+
+    #[serde(rename = "metaData")]
+    pub metadata: String,
 }
 
 impl ConsolePanelConfigResponse {
     // Helper method to get example test cases
     pub fn get_example_testcases(&self) -> Result<Vec<String>, ContentResponseError> {
-        let test_cases = self
+        let test_cases = &self
             .data
             .question
             .as_ref()
             .ok_or(ContentResponseError::MissingQuestionDataError)?
-            .example_testcase_list
-            .clone();
-        Ok(test_cases)
+            .example_testcase_list;
+        Ok(test_cases.clone())
     }
 }

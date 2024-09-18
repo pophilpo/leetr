@@ -3,17 +3,35 @@ use serde::Deserialize;
 // Response types for 'questionContent' query
 #[derive(Deserialize, Debug)]
 pub struct QuestionContentResponse {
-    data: QuestionContentData,
+    pub data: QuestionContentData,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct QuestionContentData {
-    question: Option<QuestionContent>,
+    pub question: QuestionContent,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct QuestionContent {
-    content: Option<String>,
+    pub content: String,
+}
+
+impl QuestionContent {
+    pub fn extract_example_outputs(&self) -> Vec<String> {
+        let lines: Vec<&str> = self.content.lines().collect();
+
+        let mut outputs: Vec<String> = Vec::new();
+        for line in lines {
+            if line.contains("<strong>Output:</strong>") {
+                let parts: Vec<&str> = line.split_whitespace().collect();
+                if let Some(output_value) = parts.get(parts.len() - 1) {
+                    outputs.push(output_value.to_string());
+                }
+            }
+        }
+
+        outputs
+    }
 }
 
 // Response types for 'questionEditorData' query

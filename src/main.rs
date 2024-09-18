@@ -22,6 +22,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let code = code.get_code_snippet("rust")?;
 
     let console_data = client.get_console_panel_conifg()?;
+    let problem_description = client.get_problem_description()?;
+
+    let html = problem_description.data.question;
+    let outputs = html.extract_example_outputs();
 
     let example_string = console_data.get_example_testcases()?;
     let metadata = console_data.data.question.unwrap().metadata;
@@ -31,7 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let metadata = generator.parse_metadata()?;
 
-    let example = Example::new(example_string[0].clone(), metadata)?;
+    let example = Example::new(example_string[0].clone(), outputs[0].clone(), metadata)?;
 
     info!("{:?}", example);
 

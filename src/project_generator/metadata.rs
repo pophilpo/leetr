@@ -15,7 +15,7 @@ pub struct FunctionMetadata {
     pub name: Option<String>, // Handle functions without names
     pub params: Vec<Param>,
     #[serde(rename = "return")]
-    pub return_type: Option<ReturnType>, // Handle optional return types
+    pub return_type: ReturnType, // Handle optional return types
     #[serde(flatten)] // Allow extra fields like "manual"
     pub extra: Option<Value>,
 }

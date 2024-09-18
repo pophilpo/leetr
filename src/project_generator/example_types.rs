@@ -153,17 +153,32 @@ pub struct Input {
 }
 
 #[derive(Debug)]
+pub struct Output {
+    value: ExampleType,
+}
+
+#[derive(Debug)]
 pub struct Example {
     fn_name: String,
     inputs: Vec<Input>,
+    output: Output,
 }
 
 impl Example {
-    pub fn new(raw_inputs: String, metadata: Metadata) -> Result<Self, ProjectGeneratorError> {
+    pub fn new(
+        raw_inputs: String,
+        outputs: String,
+        metadata: Metadata,
+    ) -> Result<Self, ProjectGeneratorError> {
         match metadata {
             Metadata::Function(metadata) => {
                 let split: Vec<&str> = raw_inputs.split("\n").collect();
                 let name = metadata.name.unwrap();
+
+                let output_type = metadata.return_type.return_type;
+                let value = ExampleType::from_string(&output_type, &outputs)?;
+                let output = Output { value };
+
                 let params = metadata.params;
                 assert_eq!(split.len(), params.len());
                 let zipped: Vec<_> = params.iter().zip(split.iter()).collect();
@@ -183,6 +198,7 @@ impl Example {
                 Ok(Self {
                     fn_name: name,
                     inputs,
+                    output,
                 })
             }
             Metadata::Class(metadata) => unimplemented!(),

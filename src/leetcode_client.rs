@@ -1,17 +1,20 @@
 use crate::errors::LeetCodeApiError;
 use crate::response_types::{
-    ConsolePanelConfigResponse, QuestionContentResponse, QuestionEditorDataResponse,
+    ConsolePanelConfigResponse, ProblemSetResponse, QuestionContentResponse,
+    QuestionEditorDataResponse,
 };
 use reqwest::{
     blocking::{Client, ClientBuilder},
     header::{HeaderMap, HeaderValue},
 };
+use serde_json::{Map, Value};
 
 use log::{debug, error, info, warn};
 
 const QUESTION_CONTENT_QUERY: &str = include_str!("graphql/question_content.graphql");
 const QUESTION_EDITOR_DATA_QUERY: &str = include_str!("graphql/question_editor_data.graphql");
 const CONSOLE_PANEL_CONFIG_QUERY: &str = include_str!("graphql/console_panel_config.graphql");
+const PROBLEMSET_QUERY: &str = include_str!("graphql/problemset_questionlist_query.graphql");
 
 pub struct LeetCodeClient {
     pub client: Client,
@@ -37,6 +40,28 @@ impl LeetCodeClient {
             base_url,
             problem_title,
         })
+    }
+
+    pub fn get_problem_set(&self) -> Result<ProblemSetResponse, LeetCodeApiError> {
+        let variables = serde_json::json!({
+            "categorySlug": "all-code-essentials",
+            "limit": 10000,
+            "filters": Map::<String, Value>::new(),
+        });
+
+        let request_body = serde_json::json!({
+            "variables": variables,
+            "query": PROBLEMSET_QUERY,
+        });
+
+        let response = self
+            .client
+            .post(&self.base_url)
+            .json(&request_body)
+            .send()?;
+
+        let response_data: ProblemSetResponse = response.json()?;
+        Ok(response_data)
     }
 
     pub fn get_problem_description(&self) -> Result<QuestionContentResponse, LeetCodeApiError> {

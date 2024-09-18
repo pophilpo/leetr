@@ -91,3 +91,25 @@ impl ConsolePanelConfigResponse {
         Ok(test_cases.clone())
     }
 }
+
+#[derive(Deserialize, Debug)]
+pub struct ProblemSetResponse {
+    pub data: ProblemSetQuestionListWrapper, // Add a wrapper for problemsetQuestionList
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ProblemSetQuestionListWrapper {
+    #[serde(rename = "problemsetQuestionList")]
+    pub problemset_question_list: ProblemSetQuestionList, // Match the nesting in JSON
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ProblemSetQuestionList {
+    pub questions: Vec<ProblemSetQuestion>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ProblemSetQuestion {
+    #[serde(rename = "titleSlug")]
+    pub title: String,
+}

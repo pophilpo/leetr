@@ -1,5 +1,4 @@
 use crate::errors::ProjectGeneratorError;
-use crate::project_generator::example_types::InputType;
 use crate::project_generator::metadata::Metadata;
 pub trait ProjectGenerator {
     fn new(code_snippet: String, examples_string: Vec<String>, metadata: String) -> Self;

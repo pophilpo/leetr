@@ -1,6 +1,6 @@
 use crate::project_generator::metadata::Metadata;
 use crate::project_generator::traits::ProjectGenerator;
-use crate::{errors::ProjectGeneratorError, project_generator::example_types::InputType};
+use crate::{errors::ProjectGeneratorError, project_generator::example_types::ExampleType};
 
 use quote::ToTokens;
 use syn::{File, Item, ItemFn, ItemImpl, ReturnType};

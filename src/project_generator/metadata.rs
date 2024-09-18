@@ -11,48 +11,48 @@ pub enum Metadata {
 }
 
 #[derive(Deserialize, Debug)]
-struct FunctionMetadata {
-    name: Option<String>, // Handle functions without names
-    params: Vec<Param>,
+pub struct FunctionMetadata {
+    pub name: Option<String>, // Handle functions without names
+    pub params: Vec<Param>,
     #[serde(rename = "return")]
-    return_type: Option<ReturnType>, // Handle optional return types
+    pub return_type: Option<ReturnType>, // Handle optional return types
     #[serde(flatten)] // Allow extra fields like "manual"
-    extra: Option<Value>,
+    pub extra: Option<Value>,
 }
 
 #[derive(Deserialize, Debug)]
-struct ClassMetadata {
-    classname: String,
-    constructor: Option<Constructor>,
-    methods: Vec<Method>,
+pub struct ClassMetadata {
+    pub classname: String,
+    pub constructor: Option<Constructor>,
+    pub methods: Vec<Method>,
     #[serde(flatten)] // Handle extra fields like maxbytesperline and systemdesign
-    extra: Option<Value>,
+    pub extra: Option<Value>,
 }
 
 #[derive(Deserialize, Debug)]
-struct Param {
-    name: String,
+pub struct Param {
+    pub name: String,
     #[serde(rename = "type")]
-    param_type: String,
+    pub param_type: String,
 }
 
 #[derive(Deserialize, Debug)]
-struct ReturnType {
+pub struct ReturnType {
     #[serde(rename = "type")]
-    return_type: String,
+    pub return_type: String,
     #[serde(flatten)] // Allow extra fields inside the return type, like "size"
-    extra: Option<Value>,
+    pub extra: Option<Value>,
 }
 
 #[derive(Deserialize, Debug)]
-struct Constructor {
-    params: Vec<Param>,
+pub struct Constructor {
+    pub params: Vec<Param>,
 }
 
 #[derive(Deserialize, Debug)]
-struct Method {
-    name: String,
-    params: Vec<Param>,
+pub struct Method {
+    pub name: String,
+    pub params: Vec<Param>,
     #[serde(rename = "return")]
-    return_type: ReturnType,
+    pub return_type: ReturnType,
 }

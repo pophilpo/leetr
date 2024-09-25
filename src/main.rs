@@ -16,10 +16,12 @@ use project_generator::traits::ProjectGenerator;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     logger::setup_logger().unwrap();
 
-    let client = leetcode_client::LeetCodeClient::new("triangle").unwrap();
+    let client = leetcode_client::LeetCodeClient::new("two-sum").unwrap();
 
     let code = client.get_editor_data()?;
     let code = code.get_code_snippet("rust")?;
+
+    info!("\n{}", code);
 
     let console_data = client.get_console_panel_conifg()?;
     let problem_description = client.get_problem_description()?;
@@ -30,14 +32,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let example_string = console_data.get_example_testcases()?;
     let metadata = console_data.data.question.unwrap().metadata;
 
-    info!("{:?}", metadata);
     let generator = RustProjectGenerator::new(code, example_string.clone(), metadata);
 
     let metadata = generator.parse_metadata()?;
 
     let example = Example::new(example_string, outputs, metadata)?;
 
-    info!("{:?}", example);
+    let tests = generator.generate_tests(example);
+
+    info!("\n{}", tests);
 
     Ok(())
 }

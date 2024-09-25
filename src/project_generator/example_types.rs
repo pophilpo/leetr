@@ -23,6 +23,123 @@ pub enum ExampleType {
 }
 
 impl ExampleType {
+    pub fn to_string_rust(&self) -> String {
+        match self {
+            ExampleType::VecInt(value) => {
+                let inner: String = value
+                    .iter()
+                    .map(|num| num.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ");
+                format!("vec![{}]", inner)
+            }
+            ExampleType::VecVecInt(value) => {
+                let mut inner_arrays: Vec<String> = Vec::new();
+                for inner_array in value {
+                    let inner: String = inner_array
+                        .iter()
+                        .map(|num| num.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", ");
+                    let inner_array_string = format!("vec![{}]", inner);
+                    inner_arrays.push(inner_array_string);
+                }
+                let inner_arrays_string = inner_arrays.join(", ");
+                format!("vec![{}]", inner_arrays_string)
+            }
+            ExampleType::Int(value) => value.to_string(),
+            ExampleType::String(value) => format!("\"{}\".to_string()", value),
+            ExampleType::VecVecChar(value) => {
+                let mut inner_arrays: Vec<String> = Vec::new();
+                for inner_array in value {
+                    let inner: String = inner_array
+                        .iter()
+                        .map(|c| format!("'{}'", c))
+                        .collect::<Vec<String>>()
+                        .join(", ");
+                    let inner_array_string = format!("vec![{}]", inner);
+                    inner_arrays.push(inner_array_string);
+                }
+                let inner_arrays_string = inner_arrays.join(", ");
+                format!("vec![{}]", inner_arrays_string)
+            }
+            ExampleType::VecChar(value) => {
+                let inner: String = value
+                    .iter()
+                    .map(|c| format!("'{}'", c))
+                    .collect::<Vec<String>>()
+                    .join(", ");
+                format!("vec![{}]", inner)
+            }
+            ExampleType::Double(value) => value.to_string(),
+            ExampleType::VecDouble(value) => {
+                let inner = value
+                    .iter()
+                    .map(|num| num.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ");
+                format!("vec![{}]", inner)
+            }
+            ExampleType::VecString(value) => {
+                let inner = value
+                    .iter()
+                    .map(|s| format!("\"{}\".to_string()", s))
+                    .collect::<Vec<String>>()
+                    .join(", ");
+                format!("vec![{}]", inner)
+            }
+            ExampleType::VecVecString(value) => {
+                let mut inner_arrays: Vec<String> = Vec::new();
+                for inner_array in value {
+                    let inner: String = inner_array
+                        .iter()
+                        .map(|s| format!("\"{}\".to_string()", s))
+                        .collect::<Vec<String>>()
+                        .join(", ");
+                    let inner_array_string = format!("vec![{}]", inner);
+                    inner_arrays.push(inner_array_string);
+                }
+                let inner_arrays_string = inner_arrays.join(", ");
+                format!("vec![{}]", inner_arrays_string)
+            }
+
+            ExampleType::Char(value) => format!("'{}'", value),
+            ExampleType::VecBool(value) => {
+                let inner = value
+                    .iter()
+                    .map(|b| b.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ");
+                format!("vec![{}]", inner)
+            }
+            ExampleType::Long(value) => value.to_string(),
+            ExampleType::VecLong(value) => {
+                let inner = value
+                    .iter()
+                    .map(|l| l.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ");
+                format!("vec![{}]", inner)
+            }
+            ExampleType::VecVecLong(value) => {
+                let mut inner_arrays: Vec<String> = Vec::new();
+                for inner_array in value {
+                    let inner: String = inner_array
+                        .iter()
+                        .map(|l| l.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", ");
+                    let inner_array_string = format!("vec![{}]", inner);
+                    inner_arrays.push(inner_array_string);
+                }
+                let inner_arrays_string = inner_arrays.join(", ");
+                format!("vec![{}]", inner_arrays_string)
+            }
+            ExampleType::Bool(value) => value.to_string(),
+            ExampleType::Void => String::from("()"),
+        }
+    }
+
     pub fn from_string(
         example_type_string: &str,
         value: &str,
@@ -148,20 +265,20 @@ impl ExampleType {
 
 #[derive(Debug)]
 pub struct Input {
-    value: ExampleType,
-    name: String,
+    pub value: ExampleType,
+    pub name: String,
 }
 
 #[derive(Debug)]
 pub struct Output {
-    value: ExampleType,
+    pub value: ExampleType,
 }
 
 #[derive(Debug)]
 pub struct Example {
-    fn_name: String,
-    inputs: Vec<Input>,
-    output: Output,
+    pub fn_name: String,
+    pub inputs: Vec<Input>,
+    pub output: Output,
 }
 
 impl Example {

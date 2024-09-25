@@ -35,7 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let metadata = generator.parse_metadata()?;
 
-    let example = Example::new(example_string[0].clone(), outputs[0].clone(), metadata)?;
+    let example = Example::new(example_string, outputs, metadata)?;
 
     info!("{:?}", example);
 

@@ -166,41 +166,52 @@ pub struct Example {
 
 impl Example {
     pub fn new(
-        raw_inputs: String,
-        outputs: String,
+        raw_inputs: Vec<String>,
+        outputs: Vec<String>,
         metadata: Metadata,
-    ) -> Result<Self, ProjectGeneratorError> {
+    ) -> Result<Vec<Self>, ProjectGeneratorError> {
+        assert_eq!(raw_inputs.len(), outputs.len());
+
         match metadata {
             Metadata::Function(metadata) => {
-                let split: Vec<&str> = raw_inputs.split("\n").collect();
-                let name = metadata.name.unwrap();
+                let mut examples: Vec<Self> = Vec::new();
+                for (raw_input, raw_output) in raw_inputs.iter().zip(outputs.iter()) {
+                    let splitted_inputs: Vec<&str> = raw_input.split("\n").collect();
+                    let name = metadata.name.clone().unwrap();
 
-                let output_type = metadata.return_type.return_type;
-                let value = ExampleType::from_string(&output_type, &outputs)?;
-                let output = Output { value };
-
-                let params = metadata.params;
-                assert_eq!(split.len(), params.len());
-                let zipped: Vec<_> = params.iter().zip(split.iter()).collect();
-                let mut inputs: Vec<Input> = Vec::with_capacity(split.len());
-
-                for (param, raw_input) in zipped {
-                    let param_name = param.name.clone();
-                    let param_type = param.param_type.clone();
-                    let example_type = ExampleType::from_string(&param_type, raw_input)?;
-                    let input = Input {
-                        value: example_type,
-                        name: param_name,
+                    let output_type = &metadata.return_type.return_type;
+                    let output_value = ExampleType::from_string(&output_type, &raw_output)?;
+                    let output = Output {
+                        value: output_value,
                     };
-                    inputs.push(input);
+
+                    let params = &metadata.params;
+                    assert_eq!(splitted_inputs.len(), params.len());
+                    let zipped: Vec<_> = params.iter().zip(splitted_inputs.iter()).collect();
+                    let mut inputs: Vec<Input> = Vec::with_capacity(splitted_inputs.len());
+
+                    for (param, input) in zipped {
+                        let param_name = param.name.clone();
+                        let param_type = param.param_type.clone();
+                        let example_type = ExampleType::from_string(&param_type, input)?;
+                        let input = Input {
+                            value: example_type,
+                            name: param_name,
+                        };
+                        inputs.push(input);
+                    }
+
+                    let example = Example {
+                        fn_name: name.to_string(),
+                        inputs,
+                        output,
+                    };
+                    examples.push(example);
                 }
 
-                Ok(Self {
-                    fn_name: name,
-                    inputs,
-                    output,
-                })
+                Ok(examples)
             }
+
             Metadata::Class(metadata) => unimplemented!(),
         }
     }

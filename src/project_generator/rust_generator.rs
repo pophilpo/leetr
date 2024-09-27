@@ -30,8 +30,23 @@ impl ProjectGenerator for RustProjectGenerator {
         Ok(json)
     }
 
-    fn fix_code_snippet(&self) {
-        todo!();
+    fn get_complete_code(&self, examples: Vec<Example>) -> String {
+        let mut lines = Vec::new();
+        lines.push(String::from("struct Solution {}"));
+
+        for line in self.code_snippet.lines() {
+            if line.trim().contains("fn") {
+                lines.push(line.to_string());
+                lines.push(String::from("        todo!(\"Implement Solution\");"));
+            } else {
+                lines.push(line.to_string());
+            }
+        }
+
+        let tests = self.generate_tests(examples);
+        lines.push(tests);
+        let result = lines.join("\n");
+        result
     }
 
     fn generate_tests(&self, examples: Vec<Example>) -> String {
@@ -47,7 +62,7 @@ impl ProjectGenerator for RustProjectGenerator {
                 .collect::<Vec<String>>()
                 .join(", ");
 
-            let function_call_string = format!("{}({})", fn_name, input);
+            let function_call_string = format!("Solution::{}({})", fn_name, input);
             let assert_call_string = format!("assert_eq!({}, {});", function_call_string, output);
 
             let test_string = rust_test_string

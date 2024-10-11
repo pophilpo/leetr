@@ -24,4 +24,7 @@ pub enum ContentResponseError {
 pub enum ProjectGeneratorError {
     #[error("ProjectGeneratorError [Parse]")]
     ParseError(#[from] serde_json::error::Error),
+
+    #[error("ProjectGeneratorError [Process]")]
+    ProcessError(#[from] std::io::Error),
 }

@@ -4,7 +4,10 @@ use crate::{errors::ProjectGeneratorError, project_generator::example_types::Exa
 use convert_case::{Case, Casing};
 
 use quote::ToTokens;
-use syn::{File, Item, ItemFn, ItemImpl, ReturnType};
+use std::fs::{File, OpenOptions};
+use std::io::{self, Write};
+use std::path::{Path, PathBuf};
+use std::process::{exit, Command};
 
 use log::{debug, error, info, warn};
 
@@ -14,15 +17,66 @@ pub struct RustProjectGenerator {
     code_snippet: String,
     examples_string: Vec<String>,
     metadata: String,
+    problem_title: String,
 }
 
 impl ProjectGenerator for RustProjectGenerator {
-    fn new(code_snippet: String, examples_string: Vec<String>, metadata: String) -> Self {
+    fn new(
+        code_snippet: String,
+        examples_string: Vec<String>,
+        metadata: String,
+        problem_title: String,
+    ) -> Self {
         Self {
             code_snippet,
             examples_string,
             metadata,
+            problem_title,
         }
+    }
+
+    fn generate_project(
+        &self,
+        folder_name: Option<String>,
+        html: String,
+    ) -> Result<(), ProjectGeneratorError> {
+        let folder_name = match folder_name {
+            Some(name) => name,
+            None => self.problem_title.clone(),
+        };
+
+        if Path::new(&folder_name).exists() {
+            error!("Folder with name {} already exists.", folder_name);
+        }
+
+        let output = Command::new("cargo")
+            .arg("new")
+            .arg("--lib")
+            .arg(&folder_name)
+            .output()?;
+
+        if output.status.success() {
+            info!("Generated new rust project {}", folder_name);
+        } else {
+            let error = String::from_utf8_lossy(&output.stderr);
+            error!("Error running cargo command: {}", error);
+            exit(1);
+        }
+
+        let markdown_path: PathBuf = Path::new(&folder_name).join("README.md");
+        let mut markdown = File::create(&markdown_path)?;
+
+        let mut file = OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open(markdown_path)?;
+
+        let title_header = format!("<h1>{}</h1>\n", self.problem_title.to_case(Case::Title));
+
+        file.write_all(&title_header.as_bytes())?;
+        file.write_all(html.as_bytes())?;
+
+        Ok(())
     }
 
     fn parse_metadata(&self) -> Result<Metadata, ProjectGeneratorError> {
